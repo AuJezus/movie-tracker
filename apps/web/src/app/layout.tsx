@@ -19,14 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={cn(
-        "dark min-h-screen bg-background font-sans antialiased",
-        fontSans.variable,
-      )}
-    >
-      <body>{children}</body>
+    <html lang="en">
+      <body
+        className={cn(
+          "dark min-h-dvh bg-background font-sans antialiased",
+          fontSans.variable,
+        )}
+      >
+        {children}
+      </body>
     </html>
   );
 }
