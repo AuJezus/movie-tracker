@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function HomePage() {
   return (
     <main className="mx-auto flex h-dvh max-w-xl flex-col items-center justify-center p-2 text-center md:max-w-2xl">
-      <h1 className="bold mb-8 text-6xl text-primary-foreground underline decoration-primary md:text-7xl">
+      <h1 className="mb-8 text-6xl font-semibold text-primary-foreground underline decoration-primary md:text-7xl">
         Movie Tracker
       </h1>
 
