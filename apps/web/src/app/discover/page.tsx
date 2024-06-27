@@ -1,14 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import {
   Menubar,
-  MenubarCheckboxItem,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSeparator,
-  MenubarShortcut,
   MenubarSub,
   MenubarSubContent,
   MenubarSubTrigger,
@@ -25,6 +22,7 @@ import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { BiCalendarStar, BiStar, BiTime } from "react-icons/bi";
 import { MdMovieEdit } from "react-icons/md";
+import { LucideChevronRight } from "lucide-react";
 
 const testMovieResponse = {
   page: 1,
@@ -374,7 +372,7 @@ const testMovieResponse = {
   total_results: 896141,
 };
 
-export default async function DiscoverPage() {
+export default function DiscoverPage() {
   return (
     <main className="mx-auto max-w-[1200px] px-2 sm:px-3">
       <h1 className="mb-6 text-5xl font-medium underline decoration-primary">
@@ -391,89 +389,89 @@ export default async function DiscoverPage() {
         <MenubarMenu>
           <MenubarTrigger>Filter</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem>
-              New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+            <MenubarItem asChild>
+              <Select>
+                <SelectTrigger
+                  icon={<LucideChevronRight className="h-4 w-4" />}
+                  className="h-auto border-none px-2 py-1.5 hover:bg-accent hover:text-accent-foreground focus:ring-0"
+                >
+                  Genre
+                </SelectTrigger>
+                <SelectContent side="right">
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                  <SelectItem>Lol</SelectItem>
+                </SelectContent>
+              </Select>
             </MenubarItem>
-            <MenubarItem>
-              New Window <MenubarShortcut>⌘N</MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem disabled>New Incognito Window</MenubarItem>
-            <MenubarSeparator />
-            <MenubarSub>
-              <MenubarSubTrigger>Share</MenubarSubTrigger>
-              <MenubarSubContent>
-                <MenubarItem>Email link</MenubarItem>
-                <MenubarItem>Messages</MenubarItem>
-                <MenubarItem>Notes</MenubarItem>
-              </MenubarSubContent>
-            </MenubarSub>
-            <MenubarSeparator />
-            <MenubarItem>
-              Print... <MenubarShortcut>⌘P</MenubarShortcut>
-            </MenubarItem>
+            <MenubarItem>Rating</MenubarItem>
+            <MenubarItem>Runtime</MenubarItem>
+            <MenubarItem>Released from</MenubarItem>
+            <MenubarItem>Released until</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 
         <MenubarMenu>
           <MenubarTrigger>Sort</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem>
-              Undo <MenubarShortcut>⌘Z</MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem>
-              Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
             <MenubarSub>
-              <MenubarSubTrigger>Find</MenubarSubTrigger>
+              <MenubarSubTrigger>Release date</MenubarSubTrigger>
               <MenubarSubContent>
-                <MenubarItem>Search the web</MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem>Find...</MenubarItem>
-                <MenubarItem>Find Next</MenubarItem>
-                <MenubarItem>Find Previous</MenubarItem>
+                <MenubarItem>Ascending</MenubarItem>
+                <MenubarItem>Descending</MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
-            <MenubarSeparator />
-            <MenubarItem>Cut</MenubarItem>
-            <MenubarItem>Copy</MenubarItem>
-            <MenubarItem>Paste</MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
 
-        <MenubarMenu>
-          <MenubarTrigger>View</MenubarTrigger>
-          <MenubarContent>
-            <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
-            <MenubarCheckboxItem checked>
-              Always Show Full URLs
-            </MenubarCheckboxItem>
-            <MenubarSeparator />
-            <MenubarItem inset>
-              Reload <MenubarShortcut>⌘R</MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem disabled inset>
-              Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset>Toggle Fullscreen</MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset>Hide Sidebar</MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
+            <MenubarSub>
+              <MenubarSubTrigger>Rating</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Ascending</MenubarItem>
+                <MenubarItem>Descending</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
 
-        <MenubarMenu>
-          <MenubarTrigger>Profiles</MenubarTrigger>
-          <MenubarContent>
-            <MenubarRadioGroup value="benoit">
-              <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
-              <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
-              <MenubarRadioItem value="Luis">Luis</MenubarRadioItem>
-            </MenubarRadioGroup>
-            <MenubarSeparator />
-            <MenubarItem inset>Edit...</MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset>Add Profile...</MenubarItem>
+            <MenubarSub>
+              <MenubarSubTrigger>Runtime</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Ascending</MenubarItem>
+                <MenubarItem>Descending</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+
+            <MenubarSub>
+              <MenubarSubTrigger>Popularity</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Ascending</MenubarItem>
+                <MenubarItem>Descending</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
           </MenubarContent>
         </MenubarMenu>
 
