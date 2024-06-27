@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "~/lib/utils";
+import { ThemeProvider } from "~/components/theme";
 
 export const metadata = {
   title: "Create T3 App",
@@ -22,11 +23,17 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "dark min-h-dvh bg-background font-sans antialiased",
+          "min-h-dvh bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >
-        {children}
+        <ThemeProvider
+          disableTransitionOnChange
+          defaultTheme="dark"
+          attribute="class"
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

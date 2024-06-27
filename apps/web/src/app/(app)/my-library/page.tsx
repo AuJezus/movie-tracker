@@ -11,7 +11,9 @@ import { testMovieResponse } from "~/lib/mockData";
 export default function MyLibraryPage() {
   return (
     <PageContainer>
-      <Heading level="h1">My Library</Heading>
+      <Heading level="h1" className="mb-10">
+        My Library
+      </Heading>
 
       <div className="mb-8 flex items-center justify-center divide-primary border-b-2 border-primary pb-8">
         <Image
@@ -25,7 +27,7 @@ export default function MyLibraryPage() {
         <p className={cn(headingVariants({ level: "h2" }), "mb-0")}>AuJezus</p>
       </div>
 
-      <div className="mb-8 flex justify-around">
+      <div className="mb-10 flex justify-around">
         <div>
           <p className="mb-2">Total Time Watched:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
@@ -50,7 +52,7 @@ export default function MyLibraryPage() {
       </div>
 
       <Tabs defaultValue="completed">
-        <TabsList>
+        <TabsList className="mb-2">
           <TabsTrigger value="completed" className="flex items-center gap-2">
             <BiMoviePlay /> Completed
           </TabsTrigger>

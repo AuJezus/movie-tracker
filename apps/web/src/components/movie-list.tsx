@@ -19,7 +19,7 @@ function MovieList({ movies }: { movies: typeof testMovieResponse }) {
       {movies.results.map((movie) => (
         <div
           key={movie.id}
-          className="group relative flex aspect-[6/8] flex-col justify-between overflow-hidden rounded-md border-2 transition-all hover:scale-105 hover:border-primary has-[[data-state=open]]:scale-105 has-[[data-state=open]]:border-primary"
+          className="dark group relative flex aspect-[6/8] flex-col justify-between overflow-hidden rounded-md border-2 transition-all hover:scale-105 hover:border-primary has-[[data-state=open]]:scale-105 has-[[data-state=open]]:border-primary"
         >
           <Image
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
@@ -63,7 +63,9 @@ function MovieList({ movies }: { movies: typeof testMovieResponse }) {
             </div>
           </div>
 
-          <p className="p-2 font-semibold">{movie.title}</p>
+          <p className="p-2 font-semibold  text-primary-foreground">
+            {movie.title}
+          </p>
         </div>
       ))}
     </div>

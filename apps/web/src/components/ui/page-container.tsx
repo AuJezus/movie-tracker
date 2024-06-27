@@ -7,7 +7,7 @@ const PageContainer = forwardRef<
 >(({ children, className, ...props }, ref) => {
   return (
     <main
-      className={cn("mx-auto max-w-[1200px] px-2 sm:px-3", className)}
+      className={cn("mx-auto my-12 max-w-[1200px] px-2 sm:px-3", className)}
       ref={ref}
       {...props}
     >
