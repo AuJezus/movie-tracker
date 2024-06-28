@@ -21,13 +21,13 @@ export default function MyLibraryPage() {
           width={500}
           height={750}
           alt="a"
-          className="mr-8 box-content h-24 w-24 border-r-2 border-primary object-cover pr-8"
+          className="mr-4 box-content h-20 w-20 min-w-20 border-r-2 border-primary object-cover pr-4 sm:mr-8 sm:h-24 sm:w-24 sm:pr-8"
         />
 
         <p className={cn(headingVariants({ level: "h2" }), "mb-0")}>AuJezus</p>
       </div>
 
-      <div className="mb-10 flex justify-around">
+      <div className="mb-10 flex flex-wrap justify-around gap-y-6">
         <div>
           <p className="mb-2">Total Time Watched:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
@@ -52,7 +52,7 @@ export default function MyLibraryPage() {
       </div>
 
       <Tabs defaultValue="completed">
-        <TabsList className="mb-2">
+        <TabsList className="mb-2 h-fit flex-wrap justify-around">
           <TabsTrigger value="completed" className="flex items-center gap-2">
             <BiMoviePlay /> Completed
           </TabsTrigger>
