@@ -32,7 +32,7 @@ export default function DiscoverPage() {
         start your cinematic adventure! 🍿🎥✨
       </p>
 
-      <Menubar className="mb-4 w-fit border-2">
+      <Menubar className="mb-4 flex h-fit w-fit flex-wrap border-2">
         <MenubarMenu>
           <MenubarTrigger>Filter</MenubarTrigger>
           <MenubarContent>
@@ -125,7 +125,7 @@ export default function DiscoverPage() {
         <MenubarMenu>
           <label
             htmlFor="search"
-            className="group flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium focus-within:bg-accent hover:bg-accent"
+            className="group !ml-0 flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium focus-within:bg-accent hover:bg-accent sm:!ml-2"
           >
             Search:
             <input
