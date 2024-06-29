@@ -1,0 +1,23 @@
+{
+  "name": "database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "db:check": "npx drizzle-kit check",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "ts-node ./migrate.ts",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.22.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.31.2",
+    "postgres": "^3.4.4"
+  }
+}
