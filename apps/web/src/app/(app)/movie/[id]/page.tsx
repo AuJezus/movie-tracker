@@ -17,18 +17,27 @@ import { cn } from "~/lib/utils";
 function MovieDetailsPage() {
   return (
     <PageContainer>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <Heading level="h1" className="mb-0">
           The Best Movie Ever
         </Heading>
-        <div className="flex items-center gap-2 rounded-md border-2 bg-primary px-3 py-1.5 text-2xl text-primary-foreground">
+
+        <div className="flex items-center gap-2 rounded-md border-2 bg-primary px-3 py-1.5 text-xl text-primary-foreground md:text-2xl">
           <BiStar /> 7.75
         </div>
+
+        <Image
+          src={`https://image.tmdb.org/t/p/w400/oxxqiyWrnM0XPnBtVe9TgYWnPxT.jpg`}
+          width={400}
+          height={600}
+          alt="a"
+          className="mx-auto object-cover md:hidden"
+        />
       </div>
 
       <Carousel className="mb-4">
-        <CarouselContent className="h-[500px]">
-          <CarouselItem className="relative basis-2/6">
+        <CarouselContent className="md:h-[500px]">
+          <CarouselItem className="relative hidden basis-1/2 md:block xl:basis-2/6">
             <Image
               src={`https://image.tmdb.org/t/p/w400/oxxqiyWrnM0XPnBtVe9TgYWnPxT.jpg`}
               fill
@@ -37,11 +46,16 @@ function MovieDetailsPage() {
             />
           </CarouselItem>
 
-          <CarouselItem className="basis-4/6">
+          <CarouselItem className="xl:basis-4/6">
             <iframe
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/L4DrolmDxmw?si=3BYwD2RELvJKm_nz"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
               className="h-full w-full"
-              src="https://www.youtube.com/embed/L4DrolmDxmw"
             ></iframe>
           </CarouselItem>
 
@@ -53,7 +67,7 @@ function MovieDetailsPage() {
             .map((backdrop) => (
               <CarouselItem
                 key={backdrop.file_path}
-                className="relative basis-4/6"
+                className="relative lg:basis-4/6"
               >
                 <Image
                   src={`https://image.tmdb.org/t/p/original${backdrop.file_path}`}
@@ -66,8 +80,8 @@ function MovieDetailsPage() {
             ))}
         </CarouselContent>
 
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="left-1 xl:-left-12" />
+        <CarouselNext className="right-1 xl:-right-12" />
       </Carousel>
 
       <div className="mb-4 flex flex-wrap gap-4">
@@ -90,7 +104,7 @@ function MovieDetailsPage() {
         Anxiety shows up. And it looks like she’s not alone.
       </p>
 
-      <div className="mb-12 flex gap-10">
+      <div className="mb-12 flex flex-col gap-10 md:flex-row">
         <div className="basis-3/5">
           <MovieStat name="Budget">
             <p>2000000$</p>
@@ -148,7 +162,7 @@ function MovieDetailsPage() {
           </div>
 
           {/* <p className="mb-2">You haven&apos;t reviewed this movie yet</p>
-          <Button>Mark as completed and write a review</Button> */}
+          <Button size="sm">Mark as completed and write a review</Button> */}
 
           <p>
             Never have I EVER related to a movie more in my life. I just watched

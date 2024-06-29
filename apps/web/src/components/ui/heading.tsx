@@ -7,7 +7,7 @@ export const headingVariants = cva(
   {
     variants: {
       level: {
-        h1: "mb-6 text-5xl",
+        h1: "mb-6 text-4xl sm:text-5xl",
         h2: "mb-6 text-4xl",
         h3: "",
         h4: "",
