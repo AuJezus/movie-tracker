@@ -41,9 +41,7 @@ function NavBar() {
 }
 
 const PageTitle = () => (
-  <p
-    className={cn(headingVariants({ level: "h1" }), "mb-0 text-2xl md:w-full")}
-  >
+  <p className={cn(headingVariants(), "mb-0 text-2xl md:w-full")}>
     Movie Tracker
   </p>
 );
