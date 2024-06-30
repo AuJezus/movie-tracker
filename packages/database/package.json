@@ -3,12 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "db:check": "npx drizzle-kit check",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node ./migrate.ts",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "devDependencies": {
     "drizzle-kit": "0.22.1",

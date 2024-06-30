@@ -26,7 +26,8 @@
     "@ts-rest/nest": "^3.45.2",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "api-contract": "*"
+    "api-contract": "*",
+    "database": "*"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
