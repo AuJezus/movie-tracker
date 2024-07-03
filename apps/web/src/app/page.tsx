@@ -2,6 +2,8 @@ import { Button } from "~/components/ui/button";
 import mjPopcornGif from "../../public/mj-popcorn.webp";
 import Image from "next/image";
 import Heading from "~/components/ui/heading";
+import { authenticateWithGoogle } from "~/server/actions";
+import { BiLogoGoogle } from "react-icons/bi";
 
 export default function HomePage() {
   return (
@@ -17,16 +19,18 @@ export default function HomePage() {
       </p>
 
       <div className="mb-12 flex gap-8">
-        <Button size="lg">Sign In</Button>
-        <Button variant="secondary" size="lg">
-          Sign Up
-        </Button>
+        <form action={authenticateWithGoogle}>
+          <Button size="lg" className="gap-2">
+            Continue with <BiLogoGoogle className="text-xl" />
+          </Button>
+        </form>
       </div>
 
       <Image
         className="max-w-fit dark:brightness-75"
         src={mjPopcornGif}
         alt="Michael Jackson eating popcorn"
+        unoptimized
       />
     </main>
   );

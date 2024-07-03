@@ -6,7 +6,7 @@ import { db } from "database";
 import { Request } from "express";
 
 export type JwtPayload = {
-  sub: string;
+  sub: number;
   email: string;
 };
 

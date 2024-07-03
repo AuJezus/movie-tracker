@@ -1,12 +1,14 @@
-import { Controller, Get } from "@nestjs/common";
-import { AppService } from "./app.service";
+import { Controller } from "@nestjs/common";
+import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
+import { helloContract } from "api-contract";
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()
+  @TsRestHandler(helloContract.hello)
   SayHello() {
-    return this.appService.sayHello();
+    return tsRestHandler(helloContract.hello, async () => ({
+      status: 200,
+      body: { message: "Welcome to movie-tracker api" },
+    }));
   }
 }

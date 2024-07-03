@@ -7,17 +7,13 @@ import { JwtService } from "@nestjs/jwt";
 import { db, usersTable } from "database";
 import { generateFromEmail } from "unique-username-generator";
 import { GoogleUser } from "./strategies/google.strategy";
-
-export type JWTPayload = {
-  sub: string | number;
-  email: string;
-};
+import { JwtPayload } from "./strategies/jwt.strategy";
 
 @Injectable()
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-  generateJwt(payload: JWTPayload) {
+  generateJwt(payload: JwtPayload) {
     return this.jwtService.sign(payload);
   }
 

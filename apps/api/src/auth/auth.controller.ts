@@ -1,42 +1,44 @@
 import { AuthService } from "./auth.service";
 import { GoogleOAuthGuard } from "./guards/google-oauth.guard";
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Req,
-  Res,
-  UseGuards,
-} from "@nestjs/common";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { Controller, Req, Res, UseGuards } from "@nestjs/common";
 import { Request, Response } from "express";
 import { GoogleUser } from "./strategies/google.strategy";
+import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
+import { authContract, contract } from "api-contract";
+import { Public } from "./decorators/public";
 
-@Controller("auth")
+@Controller()
+@Public()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get("google")
+  @TsRestHandler(authContract.google)
   @UseGuards(GoogleOAuthGuard)
-  async googleAuth() {}
-
-  @Get("google/callback")
-  @UseGuards(GoogleOAuthGuard)
-  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const token = await this.authService.signIn(req.user as GoogleUser);
-
-    res.cookie("access_token", token, {
-      maxAge: 2592000000,
-      sameSite: true,
-      secure: false,
-    });
-
-    return res.status(HttpStatus.OK).send("Signed in");
+  async googleAuth() {
+    return tsRestHandler(contract.auth.google, async () => null);
   }
 
-  @Get("test")
-  @UseGuards(JwtAuthGuard)
-  authTest() {
-    return "You are signed in";
+  @TsRestHandler(authContract.googleCallback)
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuthCallback(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    return tsRestHandler(authContract.googleCallback, async () => {
+      const token = await this.authService.signIn(req.user as GoogleUser);
+
+      const redirectUrl = req.cookies["redirect_to"];
+
+      res.cookie("access_token", token, {
+        maxAge: 2592000000,
+        sameSite: "lax",
+        secure: false,
+      });
+
+      if (!redirectUrl) return { status: 200, body: "Signed in" };
+
+      res.redirect(redirectUrl);
+      return { status: 301, body: null };
+    });
   }
 }
