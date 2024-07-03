@@ -18,10 +18,22 @@ import { LucideChevronRight } from "lucide-react";
 import Heading from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
 import MovieList from "~/components/movie-list";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import { fetchDiscoverMovies } from "~/lib/movieApi/movieApi";
 
-import { testMovieResponse } from "~/lib/mockData";
+export default async function DiscoverPage() {
+  const queryClient = new QueryClient();
 
-export default function DiscoverPage() {
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: ["movies"],
+    queryFn: async ({ pageParam }) => fetchDiscoverMovies(pageParam),
+    initialPageParam: 1,
+  });
+
   return (
     <PageContainer>
       <Heading level="h1">Discover New Movies</Heading>
@@ -137,7 +149,9 @@ export default function DiscoverPage() {
         </MenubarMenu>
       </Menubar>
 
-      <MovieList movies={testMovieResponse} />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <MovieList queryFn={fetchDiscoverMovies} />
+      </HydrationBoundary>
     </PageContainer>
   );
 }

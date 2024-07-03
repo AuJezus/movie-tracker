@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "~/lib/utils";
 import { ThemeProvider } from "~/components/theme";
+import QueryClientWrapper from "~/lib/QueryClientWrapper";
 
 export const metadata = {
   title: "Create T3 App",
@@ -27,13 +28,15 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <ThemeProvider
-          disableTransitionOnChange
-          defaultTheme="dark"
-          attribute="class"
-        >
-          {children}
-        </ThemeProvider>
+        <QueryClientWrapper>
+          <ThemeProvider
+            disableTransitionOnChange
+            defaultTheme="dark"
+            attribute="class"
+          >
+            {children}
+          </ThemeProvider>
+        </QueryClientWrapper>
       </body>
     </html>
   );
