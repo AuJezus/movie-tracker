@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ModeToggle } from "~/components/theme";
 import { headingVariants } from "~/components/ui/heading";
 import { cn } from "~/lib/utils";
-import { useMediaQuery } from "~/lib/use-media-query";
+import { useMediaQuery } from "~/lib/hooks/use-media-query";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { MenuIcon } from "lucide-react";
 import { useState } from "react";

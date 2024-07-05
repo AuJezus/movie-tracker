@@ -14,18 +14,22 @@ import { MdMovieEdit } from "react-icons/md";
 import { BiCalendarStar, BiStar, BiTime } from "react-icons/bi";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Fragment, useCallback, useRef } from "react";
-import { type MovieResponse } from "~/lib/movieApi/types";
+import { type MovieResponse } from "~/lib/movie-api/types";
+import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
+import type { Filters } from "~/lib/hooks/filter/types";
 
 function MovieList({
   queryFn,
 }: {
-  queryFn: (page: number) => Promise<MovieResponse>;
+  queryFn: (page: number, filters?: Filters) => Promise<MovieResponse>;
 }) {
+  const { filters } = useFilterSearchParams();
+
   const { data, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery({
       queryKey: ["movies"],
-      queryFn: async ({ pageParam }) => queryFn(pageParam),
-      initialPageParam: 0,
+      queryFn: async ({ pageParam }) => queryFn(pageParam, filters),
+      initialPageParam: 1,
       getNextPageParam: (lastPage, _pages) =>
         lastPage.total_results ? lastPage.page + 1 : undefined,
     });
@@ -60,12 +64,14 @@ function MovieList({
               ref={lastElementRef}
               className="dark group relative flex aspect-[6/8] flex-col justify-between overflow-hidden rounded-md border-2 transition-all hover:scale-105 hover:border-primary has-[[data-state=open]]:scale-105 has-[[data-state=open]]:border-primary"
             >
-              <Image
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                fill
-                alt="a"
-                className="-z-20 object-cover"
-              />
+              {movie.poster_path && (
+                <Image
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  fill
+                  alt="a"
+                  className="-z-20 object-cover"
+                />
+              )}
 
               {/* Darken effect */}
               <div className="absolute -z-10 h-full w-full bg-gradient-to-t from-background to-transparent to-30%"></div>
@@ -73,7 +79,7 @@ function MovieList({
 
               <div className="mt-2 flex flex-col gap-2">
                 <div className="flex w-fit items-center gap-2 rounded-r-md bg-primary px-3 py-1.5 text-primary-foreground transition-transform">
-                  <BiStar className="text-lg" /> 7.76/10
+                  <BiStar className="text-lg" /> {movie.vote_average}/10
                 </div>
 
                 <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0">
@@ -98,7 +104,8 @@ function MovieList({
                 </Select>
 
                 <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0">
-                  <BiCalendarStar className="text-lg" /> 2024-06-23
+                  <BiCalendarStar className="text-lg" />
+                  {new Date(movie.release_date).toDateString()}
                 </div>
               </div>
 

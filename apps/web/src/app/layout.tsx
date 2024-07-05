@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "~/lib/utils";
 import { ThemeProvider } from "~/components/theme";
-import QueryClientWrapper from "~/lib/QueryClientWrapper";
+import QueryClientWrapper from "~/components/query-client-wrapper";
 
 export const metadata = {
   title: "Create T3 App",
