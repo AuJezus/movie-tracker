@@ -4,7 +4,7 @@ import { Controller, Req, Res, UseGuards } from "@nestjs/common";
 import { Request, Response } from "express";
 import { GoogleUser } from "./strategies/google.strategy";
 import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
-import { authContract, contract } from "api-contract";
+import { contract } from "api-contract";
 import { Public } from "./decorators/public";
 
 @Controller()
@@ -12,19 +12,19 @@ import { Public } from "./decorators/public";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @TsRestHandler(authContract.google)
+  @TsRestHandler(contract.auth.google)
   @UseGuards(GoogleOAuthGuard)
   async googleAuth() {
     return tsRestHandler(contract.auth.google, async () => null);
   }
 
-  @TsRestHandler(authContract.googleCallback)
+  @TsRestHandler(contract.auth.googleCallback)
   @UseGuards(GoogleOAuthGuard)
   async googleAuthCallback(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    return tsRestHandler(authContract.googleCallback, async () => {
+    return tsRestHandler(contract.auth.googleCallback, async () => {
       const token = await this.authService.signIn(req.user as GoogleUser);
 
       const redirectUrl = req.cookies["redirect_to"];

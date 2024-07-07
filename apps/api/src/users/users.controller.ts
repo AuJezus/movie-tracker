@@ -1,16 +1,16 @@
 import { Controller, Req } from "@nestjs/common";
-import { UserService } from "./user.service";
+import { UsersService } from "./users.service";
 import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
-import { userContract } from "api-contract";
 import { Request } from "express";
+import { contract } from "api-contract";
 
 @Controller()
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+  constructor(private readonly userService: UsersService) {}
 
-  @TsRestHandler(userContract.getCurrent)
+  @TsRestHandler(contract.users.getCurrent)
   getCurrentUser(@Req() req: Request) {
-    return tsRestHandler(userContract.getCurrent, async () => {
+    return tsRestHandler(contract.users.getCurrent, async () => {
       const user = await this.userService.getCurrentUser(
         req.cookies["access_token"]
       );

@@ -4,7 +4,7 @@ import { db } from "database";
 import { JwtPayload } from "src/auth/strategies/jwt.strategy";
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(private jwtService: JwtService) {}
 
   async getCurrentUser(accessToken: string) {

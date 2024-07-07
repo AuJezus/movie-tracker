@@ -1,11 +1,12 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { BiCalendar, BiX } from "react-icons/bi";
-import type { Filter } from "~/lib/hooks/filter/types";
 import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
-import { fetchMovieGenres } from "~/lib/movie-api/client";
 import { cn } from "~/lib/utils";
+import { format } from "date-fns";
+import { sortByMap } from "~/lib/hooks/filter/config";
+import { queryApiClient } from "~/lib/api";
+import { type DiscoverFilter } from "api-contract";
 
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -13,28 +14,27 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { format } from "date-fns";
-import { sortByMap } from "~/lib/hooks/filter/config";
 
 function MovieFilterSettings() {
   const { filters, removeFilters } = useFilterSearchParams();
 
-  const { data: genreResponse } = useQuery({
-    queryKey: ["genres"],
-    queryFn: () => fetchMovieGenres(),
-  });
+  const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
+    "genres",
+  ]);
+
+  const genres = genreRes?.body.genres;
 
   return (
     <div className="mb-4 flex flex-wrap gap-2">
-      {!!filters.genre.length && (
+      {!!genres?.length && (
         <>
-          {filters.genre.map((genre) => (
+          {filters.genre?.map((genre) => (
             <div
               key={genre}
               className="flex cursor-pointer items-center gap-1 rounded-sm bg-primary px-2 py-1 text-sm text-primary-foreground"
               onClick={() => removeFilters({ filter: "genre", value: genre })}
             >
-              {genreResponse?.genres.find((g) => +genre === g.id)?.name}
+              {genres.find((g) => +genre === g.id)?.name}
               <BiX />
             </div>
           ))}
@@ -124,7 +124,7 @@ function InputFilter({
   ...props
 }: {
   label: string;
-  filter: Exclude<Filter, "genre">;
+  filter: Exclude<DiscoverFilter, "genre">;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   const { filters, setFilters, removeFilters } = useFilterSearchParams();
   return (

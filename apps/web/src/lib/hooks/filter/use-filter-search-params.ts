@@ -1,77 +1,93 @@
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import type { Filter, Filters } from "./types";
-import { filterTypes } from "./config";
+import { useEffect, useCallback, useMemo } from "react";
+import type { DiscoverFilter, DiscoverFilters, SortBy } from "api-contract";
+
+const discoverFilters: DiscoverFilter[] = [
+  "genre",
+  "order",
+  "ratingFrom",
+  "ratingTo",
+  "releasedFrom",
+  "releasedTo",
+  "runtimeFrom",
+  "runtimeTo",
+  "sortBy",
+];
+
+function isDiscoverFilter(key: string): key is DiscoverFilter {
+  return discoverFilters.includes(key as keyof DiscoverFilters);
+}
 
 export default function useFilterSearchParams() {
   const router = useRouter();
   const params = useSearchParams();
 
-  const initialParams = useMemo<Filters>(() => {
-    const filters: Filters = {
+  const filters = useMemo<DiscoverFilters>(() => {
+    const paramFilters: DiscoverFilters = {
       genre: params.getAll("genre"),
     };
 
     for (const [filter, value] of params.entries()) {
-      if (!filterTypes.includes(filter as Filter) || filter === "genre")
-        continue;
-
-      filters[filter as Exclude<Filter, "genre">] = value;
+      if (isDiscoverFilter(filter)) {
+        if (filter === "genre") continue;
+        else if (filter === "sortBy" || filter === "order") {
+          if (filter === "sortBy") paramFilters[filter] = value as SortBy;
+          else if (filter === "order")
+            paramFilters[filter] = value as "asc" | "desc";
+        } else paramFilters[filter] = value;
+      }
     }
 
-    return filters;
+    return paramFilters;
   }, [params]);
-  const [filters, setFilters] = useState<Filters>(initialParams);
-
-  useEffect(() => {
-    setFilters(initialParams);
-  }, [initialParams]);
 
   useEffect(() => {
     const newParams = new URLSearchParams();
 
     Object.entries(filters).forEach(([name, val]) => {
       if (!val) return;
-      if (typeof val === "string") return newParams.append(name, val);
-      val.forEach((v) => newParams.append(name, v));
+
+      if (typeof val === "string") newParams.append(name, val);
+      else if (Array.isArray(val))
+        val.forEach((v) => newParams.append(name, v as string));
     });
 
-    router.push("?" + newParams.toString());
+    router.replace("?" + newParams.toString());
   }, [filters, router]);
 
-  const setFilter = useCallback(
-    (...filterArr: { filter: Filter; value: string }[]) => {
+  const setFilters = useCallback(
+    (...filterArr: { filter: DiscoverFilter; value: string }[]) => {
+      const newParams = new URLSearchParams(params);
+
       filterArr.forEach(({ filter, value }) => {
-        if (filter === "genre") {
-          if (filters[filter].includes(value)) return;
-          return setFilters((f) => ({ ...f, [filter]: [...f[filter], value] }));
-        } else {
-          if (filters[filter] === value) return;
-          setFilters((f) => ({ ...f, [filter]: value }));
-        }
+        if (filter === "genre" && !filters.genre?.includes(value))
+          newParams.append(filter, value);
+        else newParams.set(filter, value);
       });
+
+      router.push("?" + newParams.toString());
     },
-    [filters],
+    [router, params, filters],
   );
 
-  const removeFilter = useCallback(
-    (...filterArr: { filter: Filter; value?: string }[]) => {
-      filterArr.forEach(({ filter, value }) => {
-        if (filter === "genre")
-          return setFilters((f) => ({
-            ...f,
-            [filter]: f[filter].filter((val) => value !== val),
-          }));
+  const removeFilters = useCallback(
+    (...filterArr: { filter: DiscoverFilter; value?: string }[]) => {
+      const newParams = new URLSearchParams(params);
 
-        return setFilters((f) => ({ ...f, [filter]: undefined }));
-      });
+      filterArr.forEach(({ filter, value }) =>
+        filter === "genre" && value
+          ? newParams.delete(filter, value)
+          : newParams.delete(filter),
+      );
+
+      router.push("?" + newParams.toString());
     },
-    [],
+    [router, params],
   );
 
   return {
-    setFilters: setFilter,
-    removeFilters: removeFilter,
     filters,
+    setFilters,
+    removeFilters,
   };
 }

@@ -1,25 +1,21 @@
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
-import MovieFilterContent from "./movie-filter-bar";
-import { fetchMovieGenres } from "~/lib/movie-api/client";
+import { Hydrate, QueryClient, dehydrate } from "@tanstack/react-query";
+import MovieFilterBar from "./movie-filter-bar";
 import MovieFilterSettings from "./movie-filter-settings";
+import { queryApiClient } from "~/lib/api";
+import getQueryClient from "~/lib/get-query-client";
 
 async function MovieFilter() {
-  const queryClient = new QueryClient();
+  const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["genres"],
-    queryFn: async () => await fetchMovieGenres(),
-  });
+  await queryApiClient.movies.getGenres.prefetchQuery(queryClient, ["genres"]);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <MovieFilterContent />
-      <MovieFilterSettings />
-    </HydrationBoundary>
+    <div>
+      <Hydrate state={dehydrate(queryClient)}>
+        <MovieFilterBar />
+        <MovieFilterSettings />
+      </Hydrate>
+    </div>
   );
 }
 

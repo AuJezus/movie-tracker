@@ -6,7 +6,7 @@ import { initApiClient } from "./lib/api";
 export async function middleware(request: NextRequest) {
   const apiClient = initApiClient(cookies());
 
-  const res = await apiClient.user.getCurrent();
+  const res = await apiClient.users.getCurrent();
 
   if (res.status !== 200 || !res.body.user)
     return NextResponse.redirect(new URL("/", request.url));

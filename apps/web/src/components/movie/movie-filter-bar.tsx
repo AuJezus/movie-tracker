@@ -17,32 +17,38 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { LucideChevronRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchMovieGenres } from "~/lib/movie-api/client";
 import { useCallback } from "react";
 import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
-import type { Filter, SortBy } from "~/lib/hooks/filter/types";
-import { defaultFilters } from "~/lib/hooks/filter/config";
+import { queryApiClient } from "~/lib/api";
+import { DiscoverFilter, SortBy } from "api-contract";
 
-function MovieFilterContent() {
+export const defaultFilters = {
+  ratingFrom: "5",
+  ratingTo: "10",
+  runtimeFrom: "30",
+  runtimeTo: "240",
+  releasedFrom: new Date(2000, 0).toISOString().split("T")[0]!,
+  releasedTo: new Date().toISOString().split("T")[0]!,
+};
+
+function MovieFilterBar() {
   const { setFilters } = useFilterSearchParams();
 
-  const { data: genreRes } = useQuery({
-    queryKey: ["genres"],
-    queryFn: async () => await fetchMovieGenres(),
-  });
+  const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
+    "genres",
+  ]);
 
   const setFiltersFromTo = useCallback(
     (filter: "rating" | "runtime" | "released") => {
       return () =>
         setFilters(
           {
-            filter: (filter + "From") as Filter,
+            filter: (filter + "From") as DiscoverFilter,
             value:
               defaultFilters[(filter + "From") as keyof typeof defaultFilters],
           },
           {
-            filter: (filter + "To") as Filter,
+            filter: (filter + "To") as DiscoverFilter,
             value:
               defaultFilters[(filter + "To") as keyof typeof defaultFilters],
           },
@@ -80,7 +86,7 @@ function MovieFilterContent() {
                 Genre
               </SelectTrigger>
               <SelectContent side="right">
-                {genreRes?.genres.map((genre) => (
+                {genreRes?.body.genres.map((genre) => (
                   <SelectItem
                     key={genre.id}
                     value={String(genre.id)}
@@ -165,4 +171,4 @@ function MovieFilterContent() {
   );
 }
 
-export default MovieFilterContent;
+export default MovieFilterBar;
