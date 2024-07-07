@@ -28,13 +28,13 @@ export default async function DiscoverPage({
     <PageContainer>
       <Heading level="h1">Discover New Movies</Heading>
 
-      <MovieFilter />
-
       <p className="mb-8 max-w-4xl">
         Explore a vast collection of movies from all genres and eras. Find
         hidden gems, trending blockbusters, and timeless classics. Dive in and
         start your cinematic adventure! 🍿🎥✨
       </p>
+
+      <MovieFilter />
 
       <HydrationBoundary state={dehydrate(queryClient)}>
         <MovieList queryFn={fetchDiscoverMovies} />

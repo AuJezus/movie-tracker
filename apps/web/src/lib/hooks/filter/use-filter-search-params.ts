@@ -1,7 +1,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import type { Filter, Filters } from "./types";
-import { defaultFilters, filterTypes } from "./config";
+import { filterTypes } from "./config";
 
 export default function useFilterSearchParams() {
   const router = useRouter();
@@ -9,7 +9,6 @@ export default function useFilterSearchParams() {
 
   const initialParams = useMemo<Filters>(() => {
     const filters: Filters = {
-      ...defaultFilters,
       genre: params.getAll("genre"),
     };
 
@@ -21,19 +20,6 @@ export default function useFilterSearchParams() {
     }
 
     return filters;
-
-    // return {
-    //   genre: params.getAll("genre"),
-    //   ratingFrom: params.get("ratingFrom"),
-    //   ratingTo: params.get("ratingTo"),
-    //   runtimeFrom: params.get("runtimeFrom"),
-    //   runtimeTo: params.get("runtimeTo"),
-    //   releasedFrom: params.get("releasedFrom"),
-    //   releasedTo: params.get("releasedTo"),
-    //   sortBy: params.get("sortBy"),
-    //   order: params.get("order"),
-    //   query: params.get("query"),
-    // };
   }, [params]);
   const [filters, setFilters] = useState<Filters>(initialParams);
 
@@ -45,6 +31,7 @@ export default function useFilterSearchParams() {
     const newParams = new URLSearchParams();
 
     Object.entries(filters).forEach(([name, val]) => {
+      if (!val) return;
       if (typeof val === "string") return newParams.append(name, val);
       val.forEach((v) => newParams.append(name, v));
     });
@@ -67,8 +54,24 @@ export default function useFilterSearchParams() {
     [filters],
   );
 
+  const removeFilter = useCallback(
+    (...filterArr: { filter: Filter; value?: string }[]) => {
+      filterArr.forEach(({ filter, value }) => {
+        if (filter === "genre")
+          return setFilters((f) => ({
+            ...f,
+            [filter]: f[filter].filter((val) => value !== val),
+          }));
+
+        return setFilters((f) => ({ ...f, [filter]: undefined }));
+      });
+    },
+    [],
+  );
+
   return {
     setFilters: setFilter,
+    removeFilters: removeFilter,
     filters,
   };
 }

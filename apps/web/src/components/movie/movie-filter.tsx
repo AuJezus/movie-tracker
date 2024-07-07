@@ -3,8 +3,9 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
-import MovieFilterContent from "./movie-filter-content";
+import MovieFilterContent from "./movie-filter-bar";
 import { fetchMovieGenres } from "~/lib/movie-api/client";
+import MovieFilterSettings from "./movie-filter-settings";
 
 async function MovieFilter() {
   const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ async function MovieFilter() {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <MovieFilterContent />
+      <MovieFilterSettings />
     </HydrationBoundary>
   );
 }

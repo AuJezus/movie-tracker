@@ -63,7 +63,7 @@ function MovieFilterContent() {
   );
 
   return (
-    <Menubar className="mb-4 flex h-fit w-fit flex-wrap border-2">
+    <Menubar className="mb-2 flex h-fit w-fit flex-wrap border-2">
       <MenubarMenu>
         <MenubarTrigger>Filter</MenubarTrigger>
         <MenubarContent>

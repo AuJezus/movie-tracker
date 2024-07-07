@@ -3,7 +3,7 @@
 import { env } from "~/env";
 import type { GenreResponse, MovieResponse } from "./types";
 import { type Filter, type Filters } from "../hooks/filter/types";
-import { filterMap } from "../hooks/filter/config";
+import { defaultFilters, filterMap } from "../hooks/filter/config";
 
 export async function fetchMoviesApi<T>(
   path: string,
@@ -32,9 +32,12 @@ export async function fetchMoviesApi<T>(
 export async function fetchDiscoverMovies(page: number, filters?: Filters) {
   const params: Record<string, string | number> = { page };
 
+  const preparedFilters = { ...defaultFilters, ...filters };
+
   if (filters) {
-    const nonEmptyFilters = Object.entries(filters).filter(([_, value]) =>
-      value ? (typeof value === "string" ? true : !!value?.length) : false,
+    const nonEmptyFilters = Object.entries(preparedFilters).filter(
+      ([_, value]) =>
+        value ? (typeof value === "string" ? true : !!value?.length) : false,
     ) as [Filter, string | string[]][];
 
     nonEmptyFilters.forEach(([filter, value]) => {
