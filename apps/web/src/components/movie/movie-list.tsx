@@ -79,7 +79,9 @@ function MovieList({
 
               <div className="mt-2 flex flex-col gap-2">
                 <div className="flex w-fit items-center gap-2 rounded-r-md bg-primary px-3 py-1.5 text-primary-foreground transition-transform">
-                  <BiStar className="text-lg" /> {movie.vote_average}/10
+                  <BiStar className="text-lg" />{" "}
+                  {movie.vote_average.toPrecision(2)}
+                  /10
                 </div>
 
                 <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0">

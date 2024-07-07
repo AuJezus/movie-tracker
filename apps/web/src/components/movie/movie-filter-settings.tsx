@@ -121,7 +121,7 @@ function InputFilter({
         <Popover>
           <PopoverTrigger className="flex items-center gap-1">
             <BiCalendar />
-            {format(new Date(filters[filter]!), "yyyy-MM-dd")}
+            {format(new Date(filters[filter] ?? Date.now()), "yyyy-MM-dd")}
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
             <Calendar
