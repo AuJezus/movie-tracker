@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { format } from "date-fns";
+import { sortByMap } from "~/lib/hooks/filter/config";
 
 function MovieFilterSettings() {
   const { filters, removeFilters } = useFilterSearchParams();
@@ -99,6 +100,18 @@ function MovieFilterSettings() {
           min={filters.releasedTo ?? 0}
           className="w-10"
         />
+      )}
+
+      {!!filters.sortBy && !!filters.order && (
+        <div className="flex cursor-pointer items-center gap-1 rounded-sm bg-secondary px-2 py-1 text-sm text-secondary-foreground">
+          {`${sortByMap[filters.sortBy] ?? filters.sortBy} ${filters.order.toUpperCase()}`}{" "}
+          <BiX
+            onClick={() =>
+              removeFilters({ filter: "sortBy" }, { filter: "order" })
+            }
+            className="cursor-pointer"
+          />
+        </div>
       )}
     </div>
   );
