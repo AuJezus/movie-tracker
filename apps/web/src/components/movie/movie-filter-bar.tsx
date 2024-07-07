@@ -161,20 +161,6 @@ function MovieFilterContent() {
           </MenubarSub>
         </MenubarContent>
       </MenubarMenu>
-
-      <MenubarMenu>
-        <label
-          htmlFor="search"
-          className="group !ml-0 flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium focus-within:bg-accent hover:bg-accent sm:!ml-2"
-        >
-          Search:
-          <input
-            id="search"
-            placeholder="..."
-            className="bg-transparent text-sm font-normal focus-visible:outline-none"
-          />
-        </label>
-      </MenubarMenu>
     </Menubar>
   );
 }
