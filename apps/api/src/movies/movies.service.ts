@@ -5,8 +5,9 @@ import {
   DiscoverFilter,
   GenreResponse,
   MovieDetailsResponse,
-  MovieResponse,
 } from "api-contract";
+import { db } from "database";
+import { MovieResponse } from "./types";
 
 export const defaultFilters = {
   ratingFrom: "5",
@@ -56,7 +57,11 @@ export class MoviesService {
     return data;
   }
 
-  async fetchDiscoverMovies(page: number, filters?: DiscoverFilters) {
+  async fetchDiscoverMovies(
+    userId: number,
+    page: number,
+    filters?: DiscoverFilters
+  ) {
     const params: Record<string, string | number> = { page };
 
     const preparedFilters = { ...defaultFilters, ...filters };
@@ -87,7 +92,27 @@ export class MoviesService {
       }
     );
 
-    return response;
+    const moviesWithDetails = await Promise.all(
+      response.results.map((movie) => this.fetchMovieDetails(movie.id))
+    );
+
+    const moviesWithListData = await Promise.all(
+      moviesWithDetails.map(async (movie) => {
+        const listMovie = await db.query.listMovies.findFirst({
+          where: (listMovie, { eq }) =>
+            eq(listMovie.userId, userId) && eq(listMovie.movieId, movie.id),
+        });
+
+        if (!listMovie) return movie;
+
+        return {
+          ...movie,
+          list: { listMovieId: listMovie.id, typeId: listMovie.listTypeId },
+        };
+      })
+    );
+
+    return { ...response, results: moviesWithListData };
   }
 
   async fetchGenres(filterId?: number[]) {

@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { db, usersTable } from "database";
+import { db, users } from "database";
 import { generateFromEmail } from "unique-username-generator";
 import { GoogleUser } from "./strategies/google.strategy";
 import { JwtPayload } from "./strategies/jwt.strategy";
@@ -39,7 +39,7 @@ export class AuthService {
       const username = generateFromEmail(user.email);
 
       const [newUser] = await db
-        .insert(usersTable)
+        .insert(users)
         .values({ ...user, username })
         .returning();
 
@@ -53,7 +53,7 @@ export class AuthService {
   }
 
   async findUserByEmail(email: string) {
-    const user = await db.query.usersTable.findFirst({
+    const user = await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     });
 

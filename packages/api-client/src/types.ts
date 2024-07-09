@@ -1,26 +1,4 @@
-export interface MovieResponse {
-  page: number;
-  results: Movie[];
-  total_pages: number;
-  total_results: number;
-}
-
-export interface Movie {
-  adult: boolean;
-  backdrop_path: string;
-  genre_ids: number[];
-  id: number;
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string;
-  release_date: string;
-  title: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
-}
+import { ListMovie } from "database";
 
 export type SortBy =
   | "primary_release_date"
@@ -51,24 +29,6 @@ export interface Genre {
   name: string;
 }
 
-interface ProductionCompany {
-  id: number;
-  logo_path: string;
-  name: string;
-  origin_country: string;
-}
-
-interface ProductionCountry {
-  iso_3166_1: string;
-  name: string;
-}
-
-interface SpokenLanguage {
-  english_name: string;
-  iso_639_1: string;
-  name: string;
-}
-
 export interface MovieDetailsResponse {
   adult: boolean;
   backdrop_path: string;
@@ -83,16 +43,45 @@ export interface MovieDetailsResponse {
   overview: string;
   popularity: number;
   poster_path: string;
-  production_companies: ProductionCompany[];
-  production_countries: ProductionCountry[];
+  production_companies: {
+    id: number;
+    logo_path: string;
+    name: string;
+    origin_country: string;
+  }[];
+  production_countries: {
+    iso_3166_1: string;
+    name: string;
+  }[];
   release_date: string;
   revenue: number;
   runtime: number;
-  spoken_languages: SpokenLanguage[];
+  spoken_languages: {
+    english_name: string;
+    iso_639_1: string;
+    name: string;
+  }[];
   status: string;
   tagline: string;
   title: string;
   video: boolean;
   vote_average: number;
   vote_count: number;
+}
+
+export interface MovieList {
+  typeId: number;
+  name: string;
+  movies: ListMovie[];
+}
+
+export type DiscoverMovie = MovieDetailsResponse & {
+  list?: { listMovieId: number; typeId: number };
+};
+
+export interface DiscoverMovieResponse {
+  page: number;
+  results: DiscoverMovie[];
+  total_pages: number;
+  total_results: number;
 }

@@ -1,9 +1,9 @@
 import { initContract } from "@ts-rest/core";
 import {
   DiscoverFilters,
+  DiscoverMovieResponse,
   GenreResponse,
   MovieDetailsResponse,
-  MovieResponse,
 } from "../types";
 import { z } from "zod";
 
@@ -15,7 +15,7 @@ export const moviesContract = c.router(
       method: "GET",
       path: "/discover",
       responses: {
-        200: c.type<MovieResponse>(),
+        200: c.type<DiscoverMovieResponse>(),
       },
       query: c.type<DiscoverFilters & { page: number }>(),
     },

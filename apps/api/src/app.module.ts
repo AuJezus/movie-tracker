@@ -6,6 +6,7 @@ import { ConfigModule } from "@nestjs/config";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { GlobalModule } from "./global.module";
 import { MoviesModule } from "./movies/movies.module";
+import { ListsModule } from './lists/lists.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MoviesModule } from "./movies/movies.module";
     AuthModule,
     UsersModule,
     MoviesModule,
+    ListsModule,
   ],
   controllers: [AppController],
   providers: [{ provide: "APP_GUARD", useClass: JwtAuthGuard }],

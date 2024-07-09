@@ -1,17 +1,18 @@
 import {
+  boolean,
   integer,
   pgTableCreator,
   serial,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 
 const pgTable = pgTableCreator((name) => `mt_${name}`);
 
-export const usersTable = pgTable("users", {
+export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  providerId: text("provider_id"),
+  providerId: text("provider_id").notNull(),
   username: text("username").notNull(),
   email: text("email").notNull(),
   picture: text("picture").notNull(),
@@ -20,23 +21,46 @@ export const usersTable = pgTable("users", {
     .defaultNow(),
 });
 
-// export const usersRelations = relations(users, ({ many }) => ({
-//   posts: many(posts),
-// }));
+export const listTypes = pgTable("list_types", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  shouldReview: boolean("should_review").default(false).notNull(),
+});
 
-// export const posts = pgTable("posts", {
-//   id: serial("id").primaryKey(),
-//   title: text("title").notNull(),
-//   content: text("content").notNull(),
-//   createdAt: timestamp("created_at", { withTimezone: true })
-//     .notNull()
-//     .defaultNow(),
-//   userId: integer("user_id").notNull(),
-// });
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    movieId: integer("movie_id"),
+    review: text("review").notNull(),
+  },
+  (review) => ({ unique: unique().on(review.userId, review.movieId) })
+);
 
-// export const postsRelations = relations(posts, ({ one }) => ({
-//   takeout: one(users, {
-//     fields: [posts.userId],
-//     references: [users.id],
-//   }),
-// }));
+export const listMovies = pgTable(
+  "list_movies",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    movieId: integer("movie_id").notNull(),
+    listTypeId: integer("list_type_id")
+      .references(() => listTypes.id)
+      .notNull(),
+    reviewId: integer("review_id").references(() => reviews.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (listMovie) => ({
+    unique: unique().on(
+      listMovie.userId,
+      listMovie.movieId,
+      listMovie.listTypeId
+    ),
+  })
+);

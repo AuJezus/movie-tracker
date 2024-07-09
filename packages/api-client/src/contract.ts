@@ -3,6 +3,7 @@ import { helloContract } from "./contracts/hello";
 import { authContract } from "./contracts/auth";
 import { usersContract } from "./contracts/users";
 import { moviesContract } from "./contracts/movies";
+import { listsContract } from "./contracts/lists";
 
 const c = initContract();
 
@@ -22,6 +23,7 @@ export const contract = c.router(
     auth: authContract,
     users: usersContract,
     movies: moviesContract,
+    lists: listsContract,
   },
   { commonResponses: { ...unauthorizedResponse } }
 );

@@ -8,6 +8,10 @@ async function MovieFilter() {
   const queryClient = getQueryClient();
 
   await queryApiClient.movies.getGenres.prefetchQuery(queryClient, ["genres"]);
+  await queryApiClient.lists.getTypes.prefetchQuery(queryClient, [
+    "lists",
+    "types",
+  ]);
 
   return (
     <div>

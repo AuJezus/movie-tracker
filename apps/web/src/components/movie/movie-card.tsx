@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { forwardRef } from "react";
+import { forwardRef, useCallback, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -14,15 +14,41 @@ import { BiCalendarStar, BiStar, BiTime } from "react-icons/bi";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "../ui/button";
-import { useQuery } from "@tanstack/react-query";
 import { queryApiClient } from "~/lib/api";
-import { Movie } from "api-contract";
+import { DiscoverMovie } from "api-contract";
 
-const MovieCard = forwardRef<HTMLLIElement, { movie: Movie }>(
+const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
   ({ movie }, ref) => {
-    const { data, isLoading } = queryApiClient.movies.getMovieDetails.useQuery(
-      ["movie", movie.id],
-      { params: { id: movie.id.toString() } },
+    const [list, setList] = useState(movie?.list);
+
+    const { data: typesRes } = queryApiClient.lists.getTypes.useQuery([
+      "lists",
+      "types",
+    ]);
+
+    const addMutation = queryApiClient.lists.addToList.useMutation();
+    const editMutation = queryApiClient.lists.editListMovie.useMutation();
+
+    const onSelect = useCallback(
+      async (listTypeId: string) => {
+        if (!list) {
+          const { status, body } = await addMutation.mutateAsync({
+            body: { movieId: movie.id, listTypeId: Number(listTypeId) },
+          });
+
+          if (status === 200)
+            setList({ listMovieId: body.id, typeId: body.listTypeId });
+        } else {
+          const { status, body } = await editMutation.mutateAsync({
+            body: { listTypeId: Number(listTypeId) },
+            params: { id: list.listMovieId.toString() },
+          });
+
+          if (status === 200)
+            setList({ listMovieId: body.id, typeId: body.listTypeId });
+        }
+      },
+      [list],
     );
 
     return (
@@ -52,25 +78,32 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: Movie }>(
 
           <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0">
             <BiTime className="text-lg" />
-            {!data?.body.runtime
-              ? "Loading..."
-              : `${Math.floor(data?.body.runtime / 60)}hr ${data?.body.runtime % 60}min`}
+            {`${Math.floor(movie.runtime / 60)}hr ${movie.runtime % 60}min`}
           </div>
 
-          <Select>
+          <Select
+            onValueChange={onSelect}
+            value={movie.list?.typeId.toString()}
+          >
             <SelectTrigger
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "w-fit -translate-x-full gap-2 rounded-l-none border-0 transition-transform focus-within:ring-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0",
+                "w-fit -translate-x-full gap-2 rounded-l-none border-0 capitalize transition-transform focus-within:ring-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0",
               )}
               icon={<MdMovieEdit />}
             >
               <SelectValue placeholder="Add to list" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Completed</SelectItem>
-              <SelectItem value="dark">Plan to watch</SelectItem>
-              <SelectItem value="system">Dropped</SelectItem>
+              {typesRes?.body.map((type) => (
+                <SelectItem
+                  key={type.id}
+                  value={type.id.toString()}
+                  className="capitalize"
+                >
+                  {type.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 

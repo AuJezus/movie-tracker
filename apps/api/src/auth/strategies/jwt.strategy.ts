@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await db.query.usersTable.findFirst({
+    const user = await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.id, Number(payload.sub)),
     });
 
