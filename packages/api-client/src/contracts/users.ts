@@ -1,5 +1,4 @@
 import { initContract } from "@ts-rest/core";
-import { unauthorizedResponse } from "../contract";
 import { User } from "database";
 
 const c = initContract();
@@ -14,5 +13,5 @@ export const usersContract = c.router(
       },
     },
   },
-  { commonResponses: { ...unauthorizedResponse }, pathPrefix: "/users" }
+  { pathPrefix: "/users" }
 );

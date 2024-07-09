@@ -1,5 +1,4 @@
 import { initContract } from "@ts-rest/core";
-import { unauthorizedResponse } from "../contract";
 import { z } from "zod";
 
 const c = initContract();
@@ -21,7 +20,6 @@ export const authContract = c.router(
   },
   {
     commonResponses: {
-      ...unauthorizedResponse,
       302: c.otherResponse({
         contentType: "application/json",
         body: z.null(),

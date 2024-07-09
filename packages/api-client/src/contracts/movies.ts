@@ -1,5 +1,4 @@
 import { initContract } from "@ts-rest/core";
-import { unauthorizedResponse } from "../contract";
 import {
   DiscoverFilters,
   GenreResponse,
@@ -44,5 +43,5 @@ export const moviesContract = c.router(
       },
     },
   },
-  { commonResponses: { ...unauthorizedResponse }, pathPrefix: "/movies" }
+  { pathPrefix: "/movies" }
 );

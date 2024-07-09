@@ -16,9 +16,12 @@ export const unauthorizedResponse = {
   }),
 };
 
-export const contract = {
-  hello: helloContract,
-  auth: authContract,
-  users: usersContract,
-  movies: moviesContract,
-};
+export const contract = c.router(
+  {
+    hello: helloContract,
+    auth: authContract,
+    users: usersContract,
+    movies: moviesContract,
+  },
+  { commonResponses: { ...unauthorizedResponse } }
+);
