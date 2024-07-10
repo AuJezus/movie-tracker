@@ -14,9 +14,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 function MovieFilterSettings() {
-  const { filters, removeFilters } = useFilterSearchParams();
+  const { filters, removeFilters, setFilters } = useFilterSearchParams();
 
   const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
     "genres",
@@ -104,12 +111,30 @@ function MovieFilterSettings() {
 
       {!!filters.sortBy && !!filters.order && (
         <div className="flex cursor-pointer items-center gap-1 rounded-sm bg-secondary px-2 py-1 text-sm text-secondary-foreground">
-          {`${sortByMap[filters.sortBy] ?? filters.sortBy} ${filters.order.toUpperCase()}`}{" "}
+          {`${sortByMap[filters.sortBy] ?? filters.sortBy}`}
+
+          <Select
+            value={filters.order}
+            onValueChange={(order) =>
+              setFilters({ filter: "order", value: order })
+            }
+          >
+            <SelectTrigger className="ml-2 h-auto border-0 bg-transparent p-0 focus:ring-0 focus:ring-offset-0">
+              <p>
+                <SelectValue />
+              </p>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="asc">ascending</SelectItem>
+              <SelectItem value="desc">descending</SelectItem>
+            </SelectContent>
+          </Select>
+
           <BiX
             onClick={() =>
               removeFilters({ filter: "sortBy" }, { filter: "order" })
             }
-            className="cursor-pointer"
+            className="w-full cursor-pointer"
           />
         </div>
       )}

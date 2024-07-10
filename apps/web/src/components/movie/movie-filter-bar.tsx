@@ -21,6 +21,7 @@ import { useCallback } from "react";
 import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
 import { queryApiClient } from "~/lib/api";
 import { DiscoverFilter, SortBy } from "api-contract";
+import { useMediaQuery } from "~/lib/hooks/use-media-query";
 
 export const defaultFilters = {
   ratingFrom: "5",
@@ -37,6 +38,8 @@ function MovieFilterBar() {
   const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
     "genres",
   ]);
+
+  const isSmall = useMediaQuery("(max-width: 400px)");
 
   const setFiltersFromTo = useCallback(
     (filter: "rating" | "runtime" | "released") => {
@@ -114,57 +117,83 @@ function MovieFilterBar() {
       <MenubarMenu>
         <MenubarTrigger>Sort</MenubarTrigger>
         <MenubarContent>
-          <MenubarSub>
-            <MenubarSubTrigger>Release date</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem
-                onClick={setSortFilter("primary_release_date", "asc")}
-              >
-                Ascending
-              </MenubarItem>
-              <MenubarItem
-                onClick={setSortFilter("primary_release_date", "desc")}
-              >
-                Descending
-              </MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          {isSmall ? (
+            <MenubarItem
+              onClick={setSortFilter("primary_release_date", "desc")}
+            >
+              Release date
+            </MenubarItem>
+          ) : (
+            <MenubarSub>
+              <MenubarSubTrigger>Release date</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem
+                  onClick={setSortFilter("primary_release_date", "asc")}
+                >
+                  Ascending
+                </MenubarItem>
+                <MenubarItem
+                  onClick={setSortFilter("primary_release_date", "desc")}
+                >
+                  Descending
+                </MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+          )}
 
-          <MenubarSub>
-            <MenubarSubTrigger>Rating</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem onClick={setSortFilter("vote_average", "asc")}>
-                Ascending
-              </MenubarItem>
-              <MenubarItem onClick={setSortFilter("vote_average", "desc")}>
-                Descending
-              </MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          {isSmall ? (
+            <MenubarItem onClick={setSortFilter("vote_average", "desc")}>
+              Rating
+            </MenubarItem>
+          ) : (
+            <MenubarSub>
+              <MenubarSubTrigger>Rating</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem onClick={setSortFilter("vote_average", "asc")}>
+                  Ascending
+                </MenubarItem>
+                <MenubarItem onClick={setSortFilter("vote_average", "desc")}>
+                  Descending
+                </MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+          )}
 
-          <MenubarSub>
-            <MenubarSubTrigger>Title</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem onClick={setSortFilter("title", "asc")}>
-                Ascending
-              </MenubarItem>
-              <MenubarItem onClick={setSortFilter("title", "desc")}>
-                Descending
-              </MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          {isSmall ? (
+            <MenubarItem onClick={setSortFilter("title", "desc")}>
+              Title
+            </MenubarItem>
+          ) : (
+            <MenubarSub>
+              <MenubarSubTrigger>Title</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem onClick={setSortFilter("title", "asc")}>
+                  Ascending
+                </MenubarItem>
+                <MenubarItem onClick={setSortFilter("title", "desc")}>
+                  Descending
+                </MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+          )}
 
-          <MenubarSub>
-            <MenubarSubTrigger>Popularity</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem onClick={setSortFilter("popularity", "asc")}>
-                Ascending
-              </MenubarItem>
-              <MenubarItem onClick={setSortFilter("popularity", "desc")}>
-                Descending
-              </MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          {isSmall ? (
+            <MenubarItem onClick={setSortFilter("popularity", "desc")}>
+              Popularity
+            </MenubarItem>
+          ) : (
+            <MenubarSub>
+              <MenubarSubTrigger>Popularity</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem onClick={setSortFilter("popularity", "asc")}>
+                  Ascending
+                </MenubarItem>
+                <MenubarItem onClick={setSortFilter("popularity", "desc")}>
+                  Descending
+                </MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+          )}
         </MenubarContent>
       </MenubarMenu>
     </Menubar>
