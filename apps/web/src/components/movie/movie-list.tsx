@@ -6,6 +6,7 @@ import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
 import { format } from "date-fns";
 import MovieCard from "./movie-card";
 import { queryApiClient } from "~/lib/api";
+import { cn } from "~/lib/utils";
 
 function MovieList() {
   const { filters } = useFilterSearchParams();
@@ -14,12 +15,12 @@ function MovieList() {
     queryApiClient.movies.getDiscover.useInfiniteQuery(
       ["movies", "discover", filters],
       ({ pageParam = 1, queryKey }) => ({
-        query: { page: pageParam, ...queryKey[3]! },
+        query: { page: pageParam, ...queryKey[2]! },
       }),
       {
         getNextPageParam: (lastPage, _pages) =>
           lastPage.status == 200
-            ? lastPage.body.total_results
+            ? lastPage.body.total_pages !== lastPage.body.page
               ? lastPage.body.page + 1
               : undefined
             : undefined,
@@ -56,8 +57,13 @@ function MovieList() {
         </Fragment>
       ))}
 
-      <li className="col-span-full mt-8 animate-pulse text-center">
-        Loading...
+      <li
+        className={cn(
+          "col-span-full mt-8 text-center",
+          hasNextPage || (isLoading && "animate-pulse"),
+        )}
+      >
+        {hasNextPage || isLoading ? "Loading..." : "You reached the end 😝"}
       </li>
     </ul>
   );
