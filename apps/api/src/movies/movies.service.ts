@@ -99,8 +99,8 @@ export class MoviesService {
     const moviesWithListData = await Promise.all(
       moviesWithDetails.map(async (movie) => {
         const listMovie = await db.query.listMovies.findFirst({
-          where: (listMovie, { eq }) =>
-            eq(listMovie.userId, userId) && eq(listMovie.movieId, movie.id),
+          where: (listMovie, { eq, and }) =>
+            and(eq(listMovie.userId, userId), eq(listMovie.movieId, movie.id)),
         });
 
         if (!listMovie) return movie;

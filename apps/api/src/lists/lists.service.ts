@@ -29,8 +29,8 @@ export class ListsService {
     const lists = await Promise.all(
       listTypes.map(async (type) => {
         const movies = await db.query.listMovies.findMany({
-          where: (movie, { eq }) =>
-            eq(movie.listTypeId, type.id) && eq(movie.userId, userId),
+          where: (movie, { eq, and }) =>
+            and(eq(movie.listTypeId, type.id), eq(movie.userId, userId)),
         });
 
         return { typeId: type.id, name: type.name, movies };
@@ -46,8 +46,8 @@ export class ListsService {
     if (!type) return null;
 
     const movies = await db.query.listMovies.findMany({
-      where: (movie, { eq }) =>
-        eq(movie.userId, userId) && eq(movie.listTypeId, listTypeId),
+      where: (movie, { eq, and }) =>
+        and(eq(movie.userId, userId), eq(movie.listTypeId, listTypeId)),
     });
 
     return { typeId: type.id, name: type.name, movies: movies };
