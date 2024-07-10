@@ -61,10 +61,11 @@ export const listMovies = pgTable(
       .notNull(),
   },
   (listMovie) => ({
-    unique: unique().on(
+    uniqueListMovie: unique().on(
       listMovie.userId,
       listMovie.movieId,
       listMovie.listTypeId
     ),
+    uniqueMovies: unique().on(listMovie.userId, listMovie.movieId),
   })
 );
