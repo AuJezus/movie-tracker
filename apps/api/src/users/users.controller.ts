@@ -14,7 +14,7 @@ export class UsersController {
   ) {}
 
   @TsRestHandler(contract.users.getCurrent)
-  getCurrentUser(@Req() req: Request) {
+  async getCurrentUser(@Req() req: Request) {
     return tsRestHandler(contract.users.getCurrent, async () => {
       const { sub: id }: JwtPayload = this.jwtService.decode(
         req.cookies["access_token"]
@@ -23,6 +23,19 @@ export class UsersController {
       const user = await this.userService.getUser(id);
 
       return { status: 200, body: { user } };
+    });
+  }
+
+  @TsRestHandler(contract.users.getStats)
+  async getStats(@Req() req: Request) {
+    return tsRestHandler(contract.users.getStats, async () => {
+      const { sub: id }: JwtPayload = this.jwtService.decode(
+        req.cookies["access_token"]
+      );
+
+      const stats = await this.userService.getStats(id);
+
+      return { status: 200, body: stats };
     });
   }
 }

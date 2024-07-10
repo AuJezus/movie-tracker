@@ -3,6 +3,7 @@ import {
   NewListMovie,
   UpdateListMovie,
   db,
+  eq,
   listMovies,
   listTypes,
 } from "database";
@@ -73,6 +74,7 @@ export class ListsService {
     const movie = await db
       .update(listMovies)
       .set({ ...newListMovie, userId: userId })
+      .where(eq(listMovies.id, newListMovie.id))
       .returning();
 
     return movie[0];

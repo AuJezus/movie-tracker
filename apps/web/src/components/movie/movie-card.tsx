@@ -81,10 +81,7 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
             {`${Math.floor(movie.runtime / 60)}hr ${movie.runtime % 60}min`}
           </div>
 
-          <Select
-            onValueChange={onSelect}
-            value={movie.list?.typeId.toString()}
-          >
+          <Select onValueChange={onSelect} value={list?.typeId.toString()}>
             <SelectTrigger
               className={cn(
                 buttonVariants({ size: "sm" }),

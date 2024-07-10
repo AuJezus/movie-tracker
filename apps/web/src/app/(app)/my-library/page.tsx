@@ -1,22 +1,24 @@
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
-import { BiMovie, BiMoviePlay, BiTime, BiTrash } from "react-icons/bi";
+import { BiMovie, BiMoviePlay, BiTime } from "react-icons/bi";
 import Heading, { headingVariants } from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
-import { testMovieResponse } from "~/lib/mockData";
 import { initApiClient, queryApiClient } from "~/lib/api";
-import getQueryClient from "~/lib/get-query-client";
 import { cookies } from "next/headers";
 
 export default async function MyLibraryPage() {
-  const userRes = await initApiClient(cookies()).users.getCurrent();
+  const apiClient = initApiClient(cookies());
+
+  const userRes = await apiClient.users.getCurrent();
   if (userRes.status !== 200) throw new Error("Could not get current user");
 
-  const { user } = userRes.body;
+  const statsRes = await apiClient.users.getStats();
+  if (statsRes.status !== 200) throw new Error("Could not get user stats");
 
-  // user
-  // user stats
+  const { user } = userRes.body;
+  const stats = statsRes.body;
+
   // user lists
   // somehow make the movie-list work with other movies
 
@@ -44,22 +46,27 @@ export default async function MyLibraryPage() {
         <div>
           <p className="mb-2">Total Time Watched:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
-            <BiTime className="text-primary" /> 43hr 43mins
+            <BiTime className="text-primary" />{" "}
+            {Math.floor(stats.watchTime / 60)}hr {stats.watchTime % 60}mins
           </p>
         </div>
 
         <div>
           <p className="mb-2">Total Movies Watched:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
-            <BiMovie className="text-primary" /> 23 movies
+            <BiMovie className="text-primary" /> {stats.moviesWatched} movies
           </p>
         </div>
 
         <div>
           <p className="mb-2">Last Movie:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
-            <BiMovie className="text-primary" /> &quot;Tavo Mama: The
-            Lunch&quot;
+            <BiMovie className="text-primary" />
+            {`"${
+              stats.lastMovie
+                ? stats.lastMovie.title
+                : "You haven't completed any movie"
+            }"`}
           </p>
         </div>
       </div>
