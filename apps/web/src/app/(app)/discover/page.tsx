@@ -1,25 +1,37 @@
 import Heading from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
-import MovieList from "~/components/movie/movie-list";
 import { Hydrate, dehydrate } from "@tanstack/react-query";
-import MovieFilter from "~/components/movie/movie-filter";
 import getQueryClient from "~/lib/get-query-client";
-import { queryApiClient } from "~/lib/api";
+import { initApiClient } from "~/lib/api";
+import DiscoverMovieCards from "~/components/movie/discover-movie-cards";
+import MovieList from "~/components/movie/movie-list";
+import MovieFilter from "~/components/movie/filter/movie-filter";
+import { cookies } from "next/headers";
+import { getFiltersFromParams } from "~/lib/hooks/filter/utils";
 
 export default async function DiscoverPage({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | null>;
+  searchParams: Record<string, string | string[]>;
 }) {
   const queryClient = getQueryClient();
 
-  await queryApiClient.movies.getDiscover.prefetchInfiniteQuery(
-    queryClient,
-    ["movies", "discover", {}],
-    ({ pageParam = 1, queryKey }) => ({
-      query: { page: pageParam, ...queryKey[2]! },
-    }),
+  const params = new URLSearchParams();
+  Object.entries(searchParams).forEach(([key, value]) =>
+    Array.isArray(value)
+      ? value.forEach((v) => params.append(key, v))
+      : params.append(key, value),
   );
+  const filters = getFiltersFromParams(params);
+
+  const discoverMovies = await initApiClient(cookies()).movies.getDiscover({
+    query: { page: 1, ...filters },
+  });
+
+  queryClient.setQueryData(["movies", "discover", filters], {
+    pages: [discoverMovies],
+    pageParams: [1],
+  });
 
   return (
     <PageContainer>
@@ -34,7 +46,9 @@ export default async function DiscoverPage({
       <MovieFilter />
 
       <Hydrate state={dehydrate(queryClient)}>
-        <MovieList />
+        <MovieList>
+          <DiscoverMovieCards />
+        </MovieList>
       </Hydrate>
     </PageContainer>
   );

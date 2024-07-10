@@ -1,5 +1,3 @@
-import { ListMovie } from "database";
-
 export type SortBy =
   | "primary_release_date"
   | "vote_average"
@@ -72,7 +70,7 @@ export interface MovieDetailsResponse {
 export interface MovieList {
   typeId: number;
   name: string;
-  movies: ListMovie[];
+  movies: DiscoverMovie[];
 }
 
 export type DiscoverMovie = MovieDetailsResponse & {

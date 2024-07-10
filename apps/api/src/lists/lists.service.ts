@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import {
+  MovieListType,
   NewListMovie,
   UpdateListMovie,
   db,
@@ -7,9 +8,12 @@ import {
   listMovies,
   listTypes,
 } from "database";
+import { MoviesService } from "src/movies/movies.service";
 
 @Injectable()
 export class ListsService {
+  constructor(private moviesService: MoviesService) {}
+
   async getTypes() {
     const types = await db.select().from(listTypes);
 
@@ -28,28 +32,32 @@ export class ListsService {
     const listTypes = await this.getTypes();
 
     const lists = await Promise.all(
-      listTypes.map(async (type) => {
-        const movies = await db.query.listMovies.findMany({
-          where: (movie, { eq, and }) =>
-            and(eq(movie.listTypeId, type.id), eq(movie.userId, userId)),
-        });
-
-        return { typeId: type.id, name: type.name, movies };
-      })
+      listTypes.map(async (type) => this.getUserList(userId, type.id, type))
     );
 
     return lists;
   }
 
-  async getUserList(userId: number, listTypeId: number) {
-    const type = await this.getType(listTypeId);
+  async getUserList(
+    userId: number,
+    listTypeId: number,
+    typeObj?: MovieListType
+  ) {
+    const type = typeObj || (await this.getType(listTypeId));
 
     if (!type) return null;
 
-    const movies = await db.query.listMovies.findMany({
+    const listMovies = await db.query.listMovies.findMany({
       where: (movie, { eq, and }) =>
         and(eq(movie.userId, userId), eq(movie.listTypeId, listTypeId)),
     });
+
+    const movies = await Promise.all(
+      listMovies.map(async (listMovie) => ({
+        ...(await this.moviesService.fetchMovieDetails(listMovie.movieId)),
+        list: { listMovieId: listMovie.id, typeId: type.id },
+      }))
+    );
 
     return { typeId: type.id, name: type.name, movies: movies };
   }

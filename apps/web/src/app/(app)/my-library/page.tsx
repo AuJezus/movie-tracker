@@ -1,14 +1,22 @@
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
-import { BiMovie, BiMoviePlay, BiTime } from "react-icons/bi";
+import { BiMovie, BiMoviePlay, BiTime, BiTrash } from "react-icons/bi";
 import Heading, { headingVariants } from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
 import { initApiClient, queryApiClient } from "~/lib/api";
 import { cookies } from "next/headers";
+import MovieList from "~/components/movie/movie-list";
+import MovieCard from "~/components/movie/movie-card";
+import getQueryClient from "~/lib/get-query-client";
+import ListMovieCards from "~/components/movie/list-movie-cards";
+import { Hydrate, dehydrate } from "@tanstack/react-query";
+
+const listIcons = [<BiMoviePlay />, <BiMovie />, <BiTrash />];
 
 export default async function MyLibraryPage() {
   const apiClient = initApiClient(cookies());
+  const queryClient = getQueryClient();
 
   const userRes = await apiClient.users.getCurrent();
   if (userRes.status !== 200) throw new Error("Could not get current user");
@@ -16,11 +24,20 @@ export default async function MyLibraryPage() {
   const statsRes = await apiClient.users.getStats();
   if (statsRes.status !== 200) throw new Error("Could not get user stats");
 
+  const listsRes = await apiClient.lists.getLists();
+  if (listsRes.status !== 200) throw new Error("Could not get movie lists");
+
   const { user } = userRes.body;
   const stats = statsRes.body;
+  const lists = listsRes.body;
 
-  // user lists
-  // somehow make the movie-list work with other movies
+  lists.forEach((list) =>
+    queryApiClient.lists.getList.setQueryData(
+      queryClient,
+      ["lists", list.typeId],
+      { ...listsRes, body: list },
+    ),
+  );
 
   return (
     <PageContainer>
@@ -62,43 +79,40 @@ export default async function MyLibraryPage() {
           <p className="mb-2">Last Movie:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
             <BiMovie className="text-primary" />
-            {`"${
-              stats.lastMovie
-                ? stats.lastMovie.title
-                : "You haven't completed any movie"
-            }"`}
+            {stats.lastMovie
+              ? `"${stats.lastMovie.title}"`
+              : "You haven't completed any movie"}
           </p>
         </div>
       </div>
-      {/* 
-      <Tabs defaultValue="completed">
+
+      <Tabs defaultValue={lists[0]?.typeId.toString()}>
         <TabsList className="mb-2 h-fit flex-wrap justify-around">
-          <TabsTrigger value="completed" className="flex items-center gap-2">
-            <BiMoviePlay /> Completed
-          </TabsTrigger>
-          <TabsTrigger
-            value="plan-to-watch"
-            className="flex items-center gap-2"
-          >
-            <BiMovie /> Plan-to Watch
-          </TabsTrigger>
-          <TabsTrigger value="dropped" className="flex items-center gap-2">
-            <BiTrash /> Dropped
-          </TabsTrigger>
+          {lists.map((list, i) => (
+            <TabsTrigger
+              key={list.typeId}
+              value={list.typeId.toString()}
+              className="flex items-center gap-2 capitalize"
+            >
+              {listIcons[i]} {list.name}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="completed" asChild>
-          <MovieList movies={testMovieResponse} />
-        </TabsContent>
-
-        <TabsContent value="plan-to-watch" asChild>
-          <MovieList movies={testMovieResponse} />
-        </TabsContent>
-
-        <TabsContent value="dropped" asChild>
-          <MovieList movies={testMovieResponse} />
-        </TabsContent>
-      </Tabs> */}
+        <Hydrate state={dehydrate(queryClient)}>
+          {lists.map((list) => (
+            <TabsContent
+              key={list.typeId}
+              value={list.typeId.toString()}
+              asChild
+            >
+              <MovieList>
+                <ListMovieCards typeId={list.typeId} />
+              </MovieList>
+            </TabsContent>
+          ))}
+        </Hydrate>
+      </Tabs>
     </PageContainer>
   );
 }

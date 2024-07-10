@@ -1,45 +1,16 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useCallback, useMemo } from "react";
 import type { DiscoverFilter, DiscoverFilters, SortBy } from "api-contract";
-
-const discoverFilters: DiscoverFilter[] = [
-  "genre",
-  "order",
-  "ratingFrom",
-  "ratingTo",
-  "releasedFrom",
-  "releasedTo",
-  "runtimeFrom",
-  "runtimeTo",
-  "sortBy",
-];
-
-function isDiscoverFilter(key: string): key is DiscoverFilter {
-  return discoverFilters.includes(key as keyof DiscoverFilters);
-}
+import { getFiltersFromParams } from "./utils";
 
 export default function useFilterSearchParams() {
   const router = useRouter();
   const params = useSearchParams();
 
-  const filters = useMemo<DiscoverFilters>(() => {
-    const paramFilters: DiscoverFilters = {
-      genre: params.getAll("genre"),
-    };
-
-    for (const [filter, value] of params.entries()) {
-      if (isDiscoverFilter(filter)) {
-        if (filter === "genre") continue;
-        else if (filter === "sortBy" || filter === "order") {
-          if (filter === "sortBy") paramFilters[filter] = value as SortBy;
-          else if (filter === "order")
-            paramFilters[filter] = value as "asc" | "desc";
-        } else paramFilters[filter] = value;
-      }
-    }
-
-    return paramFilters;
-  }, [params]);
+  const filters = useMemo<DiscoverFilters>(
+    () => getFiltersFromParams(params),
+    [params],
+  );
 
   useEffect(() => {
     const newParams = new URLSearchParams();

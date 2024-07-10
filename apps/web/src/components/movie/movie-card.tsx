@@ -16,10 +16,12 @@ import { cn } from "~/lib/utils";
 import { buttonVariants } from "../ui/button";
 import { queryApiClient } from "~/lib/api";
 import { DiscoverMovie } from "api-contract";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
   ({ movie }, ref) => {
     const [list, setList] = useState(movie?.list);
+    const queryClient = useQueryClient();
 
     const { data: typesRes } = queryApiClient.lists.getTypes.useQuery([
       "lists",
@@ -36,16 +38,20 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
             body: { movieId: movie.id, listTypeId: Number(listTypeId) },
           });
 
-          if (status === 200)
+          if (status === 200) {
             setList({ listMovieId: body.id, typeId: body.listTypeId });
+            queryClient.invalidateQueries(["lists"]);
+          }
         } else {
           const { status, body } = await editMutation.mutateAsync({
             body: { listTypeId: Number(listTypeId) },
             params: { id: list.listMovieId.toString() },
           });
 
-          if (status === 200)
+          if (status === 200) {
             setList({ listMovieId: body.id, typeId: body.listTypeId });
+            queryClient.invalidateQueries(["lists"]);
+          }
         }
       },
       [list],
