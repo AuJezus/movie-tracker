@@ -1,6 +1,8 @@
+import { format } from "date-fns";
+import { cookies } from "next/headers";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import { BiEdit, BiStar } from "react-icons/bi";
-import MovieList from "~/components/movie-list";
 import { Button } from "~/components/ui/button";
 import {
   Carousel,
@@ -11,69 +13,88 @@ import {
 } from "~/components/ui/carousel";
 import Heading, { headingVariants } from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
+import { initApiClient } from "~/lib/api";
 import { testImageResponse, testMovieResponse } from "~/lib/mockData";
 import { cn } from "~/lib/utils";
 
-function MovieDetailsPage() {
+async function MovieDetailsPage({ params }: { params: { id: string } }) {
+  const apiClient = initApiClient(cookies());
+
+  const movieRes = await apiClient.movies.getMovieDetails({
+    params: { id: params.id },
+  });
+  if (movieRes.status === 404) notFound();
+  if (movieRes.status !== 200) throw new Error("Could not fetch movie details");
+
+  const mediaRes = await apiClient.movies.getMovieMedia({
+    params: { id: params.id },
+  });
+
+  const movie = movieRes.body;
+
   return (
     <PageContainer>
       <div className="mb-6 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <Heading level="h1" className="mb-0">
-          The Best Movie Ever
+          {movie.title}
         </Heading>
 
         <div className="flex items-center gap-2 rounded-md border-2 bg-primary px-3 py-1.5 text-xl text-primary-foreground md:text-2xl">
-          <BiStar /> 7.75
+          <BiStar /> {movie.vote_average.toFixed(2)}
         </div>
 
-        <Image
-          src={`https://image.tmdb.org/t/p/w400/oxxqiyWrnM0XPnBtVe9TgYWnPxT.jpg`}
-          width={400}
-          height={600}
-          alt="a"
-          className="mx-auto object-cover md:hidden"
-        />
+        {movie.poster_path && (
+          <Image
+            src={`https://image.tmdb.org/t/p/w400${movie.poster_path}`}
+            width={400}
+            height={600}
+            alt={`"${movie.title}" poster`}
+            className="mx-auto object-cover md:hidden"
+          />
+        )}
       </div>
 
       <Carousel className="mb-4">
         <CarouselContent className="md:h-[500px]">
-          <CarouselItem className="relative hidden basis-1/2 md:block xl:basis-2/6">
-            <Image
-              src={`https://image.tmdb.org/t/p/w400/oxxqiyWrnM0XPnBtVe9TgYWnPxT.jpg`}
-              fill
-              alt="a"
-              className="object-cover"
-            />
+          <CarouselItem className="relative hidden basis-1/2 bg-secondary text-secondary-foreground md:block xl:basis-2/6">
+            {movie.poster_path ? (
+              <Image
+                src={`https://image.tmdb.org/t/p/w780${movie.poster_path}`}
+                fill
+                alt={`"${movie.title}" poster`}
+                className="object-cover"
+              />
+            ) : (
+              <p className="flex h-full w-full items-center justify-center text-xl">
+                No poster 😭
+              </p>
+            )}
           </CarouselItem>
 
-          <CarouselItem className="xl:basis-4/6">
-            <iframe
-              width="560"
-              height="315"
-              src="https://www.youtube.com/embed/L4DrolmDxmw?si=3BYwD2RELvJKm_nz"
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-              className="h-full w-full"
-            ></iframe>
-          </CarouselItem>
+          {mediaRes.status === 200 && (
+            <CarouselItem className="xl:basis-4/6">
+              <iframe
+                src={`https://www.youtube.com/embed/${mediaRes.body.ytKey}`}
+                title={`"${movie.title} trailer"`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                className="h-full w-full"
+              ></iframe>
+            </CarouselItem>
+          )}
 
-          {testImageResponse.backdrops
-            .filter(
-              (backdrop) =>
-                backdrop.iso_639_1 === null || backdrop.iso_639_1 === "en",
-            )
-            .map((backdrop) => (
+          {mediaRes.status === 200 &&
+            mediaRes.body.pictures.map((picture) => (
               <CarouselItem
-                key={backdrop.file_path}
+                key={picture.file_path}
                 className="relative lg:basis-4/6"
               >
                 <Image
-                  src={`https://image.tmdb.org/t/p/original${backdrop.file_path}`}
-                  height={backdrop.height}
-                  width={backdrop.width}
-                  alt="a"
+                  src={`https://image.tmdb.org/t/p/original${picture.file_path}`}
+                  height={picture.height}
+                  width={picture.width}
+                  alt={`Backdrop from "${movie.title}"`}
                   className="h-full w-full object-cover"
                 />
               </CarouselItem>
@@ -85,70 +106,52 @@ function MovieDetailsPage() {
       </Carousel>
 
       <div className="mb-4 flex flex-wrap gap-4">
-        <div className="w-fit rounded-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground">
-          Romance
-        </div>
-        <div className="w-fit rounded-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground">
-          Funny
-        </div>
-        <div className="w-fit rounded-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground">
-          Something
-        </div>
+        {movie.genres.map((genre) => (
+          <div
+            key={genre.id}
+            className="w-fit rounded-md bg-secondary px-3 py-1.5 capitalize text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+          >
+            {genre.name}
+          </div>
+        ))}
       </div>
 
-      <p className="mb-8">
-        Teenager Riley&apos;s mind headquarters is undergoing a sudden
-        demolition to make room for something entirely unexpected: new Emotions!
-        Joy, Sadness, Anger, Fear and Disgust, who’ve long been running a
-        successful operation by all accounts, aren’t sure how to feel when
-        Anxiety shows up. And it looks like she’s not alone.
-      </p>
+      <p className="mb-8">{movie.overview}</p>
 
       <div className="mb-12 flex flex-col gap-10 md:flex-row">
         <div className="basis-3/5">
-          <MovieStat name="Budget">
-            <p>2000000$</p>
+          <MovieStat name="Release Date">
+            <p>{format(movie.release_date, "MMM d, yyyy")}</p>
           </MovieStat>
 
-          <MovieStat name="Release Date">
-            <p>Aug 16, 2018</p>
-          </MovieStat>
+          <MovieStat name="Tagline">{movie.tagline}</MovieStat>
 
           <MovieStat name="Runtime">
-            <p>1hr 35min</p>
+            <p>
+              {movie.runtime
+                ? `${Math.floor(movie.runtime / 60)}hr ${movie.runtime % 60}min`
+                : ""}
+            </p>
           </MovieStat>
 
           <MovieStat name="Status">
-            <p>Released</p>
+            <p>{movie.status}</p>
           </MovieStat>
 
           <MovieStat name="Homepage">
-            <a href="www.lolas.lt">www.lolas.lt</a>
+            <a href={movie.homepage} target="_blank">
+              {movie.homepage}
+            </a>
           </MovieStat>
 
           <MovieStat name="Production Countries">
-            <p>Litva</p>
-            <p>England</p>
+            {movie.production_countries.map((country) => (
+              <p key={country.iso_3166_1}>{country.name}</p>
+            ))}
           </MovieStat>
 
-          <MovieStat name="Status">
-            <p>Released</p>
-          </MovieStat>
-
-          <MovieStat name="Tagline">
-            <p>Enjoy somethig very much</p>
-          </MovieStat>
-
-          <MovieStat name="Cast">
-            <p>A. Jonas</p>
-            <p>B. Ponas</p>
-            <p>C. Ponesnis</p>
-          </MovieStat>
-
-          <MovieStat name="Crew">
-            <p>A. Jonas</p>
-            <p>B. Ponas</p>
-            <p>C. Ponesnis</p>
+          <MovieStat name="Budget">
+            <p>{movie.budget ? `${movie.budget}$` : ""}</p>
           </MovieStat>
         </div>
 
@@ -183,7 +186,7 @@ function MovieDetailsPage() {
       </div>
 
       <Heading level="h2">More To Explore</Heading>
-      <MovieList movies={testMovieResponse} />
+      {/* <MovieList movies={testMovieResponse} /> */}
     </PageContainer>
   );
 }
@@ -196,7 +199,7 @@ const MovieStat = ({
   name: string;
 }) => (
   <div className="mb-2 flex items-center border-b-2 pb-2 last:mb-0 last:border-none">
-    <p className="w-32 text-lg font-medium">{name}</p>
+    <p className="w-32 flex-shrink-0 text-lg font-medium">{name}</p>
     <div className="flex flex-wrap gap-4">{children}</div>
   </div>
 );

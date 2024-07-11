@@ -7,7 +7,7 @@ import {
   MovieDetailsResponse,
 } from "api-contract";
 import { db } from "database";
-import { MovieResponse } from "./types";
+import { MovieImageResponse, MovieResponse, MovieVideoResponse } from "./types";
 
 export const defaultFilters = {
   ratingFrom: "5",
@@ -28,6 +28,12 @@ export const filterMap = {
   releasedTo: "primary_release_date.lte",
   sortBy: "sort_by",
 };
+
+export interface ErrorResponse {
+  status_code: number;
+  status_message: string;
+  success: boolean;
+}
 
 @Injectable()
 export class MoviesService {
@@ -52,7 +58,13 @@ export class MoviesService {
       method: options.method,
     });
 
-    const data = (await res.json()) as T;
+    const body = await res.json();
+
+    if (!res.ok) {
+      return Promise.reject(body as ErrorResponse);
+    }
+
+    const data = body as T;
 
     return data;
   }
@@ -131,8 +143,38 @@ export class MoviesService {
   async fetchMovieDetails(id: number) {
     const response = await this.fetchMoviesApi<MovieDetailsResponse>(
       `/movie/${id}`
-    );
+    ).catch(() => null);
 
     return response;
+  }
+
+  async fetchMovieTrailer(movieId) {
+    const response = await this.fetchMoviesApi<MovieVideoResponse>(
+      `/movie/${movieId}/videos`,
+      { params: { language: "en" } }
+    );
+
+    const ytVideo = response.results.filter(
+      (video) =>
+        video.site.toLowerCase() === "youtube" &&
+        video.type.toLowerCase() === "trailer"
+    )?.[0];
+
+    if (!ytVideo) return null;
+
+    return ytVideo.key;
+  }
+
+  async fetchMoviePictures(movieId) {
+    const response = await this.fetchMoviesApi<MovieImageResponse>(
+      `/movie/${movieId}/images`,
+      {
+        params: { language: "en" },
+      }
+    );
+
+    if (!response.backdrops.length) return null;
+
+    return response.backdrops;
   }
 }

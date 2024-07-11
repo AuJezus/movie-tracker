@@ -47,10 +47,32 @@ export class MoviesController {
     return tsRestHandler(
       contract.movies.getMovieDetails,
       async ({ params }) => {
-        const res = await this.moviesService.fetchMovieDetails(params.id);
+        const movie = await this.moviesService.fetchMovieDetails(params.id);
 
-        return { status: 200, body: res };
+        if (!movie)
+          return {
+            status: 404,
+            body: { message: "Could not find requested movie" },
+          };
+
+        return { status: 200, body: movie };
       }
     );
+  }
+
+  @TsRestHandler(contract.movies.getMovieMedia)
+  async getMovieTrailer() {
+    return tsRestHandler(contract.movies.getMovieMedia, async ({ params }) => {
+      const ytKey = await this.moviesService.fetchMovieTrailer(params.id);
+      const pictures = await this.moviesService.fetchMoviePictures(params.id);
+
+      if (!ytKey && !pictures)
+        return {
+          status: 404,
+          body: { message: "Could not find requested media" },
+        };
+
+      return { status: 200, body: { ytKey, pictures } };
+    });
   }
 }

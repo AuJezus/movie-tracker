@@ -3,6 +3,7 @@ import {
   DiscoverFilters,
   DiscoverMovieResponse,
   GenreResponse,
+  ImageInfo,
   MovieDetailsResponse,
 } from "../types";
 import { z } from "zod";
@@ -40,6 +41,18 @@ export const moviesContract = c.router(
       }),
       responses: {
         200: c.type<MovieDetailsResponse>(),
+        404: c.type<{ message: string }>(),
+      },
+    },
+    getMovieMedia: {
+      method: "GET",
+      path: "/:id/media",
+      pathParams: z.object({
+        id: z.string().transform(Number),
+      }),
+      responses: {
+        200: c.type<{ ytKey: string; pictures: ImageInfo[] }>(),
+        404: c.type<{ message: string }>(),
       },
     },
   },

@@ -1,3 +1,5 @@
+import { ImageInfo } from "api-contract";
+
 export interface MovieResponse {
   page: number;
   results: Movie[];
@@ -20,4 +22,29 @@ export interface Movie {
   video: boolean;
   vote_average: number;
   vote_count: number;
+}
+
+export interface MovieVideoResponse {
+  id: number;
+  results: MovieVideo[];
+}
+
+export interface MovieVideo {
+  iso_639_1: string;
+  iso_3166_1: string;
+  name: string;
+  key: string;
+  site: string;
+  size: number;
+  type: string;
+  official: boolean;
+  published_at: string;
+  id: string;
+}
+
+export interface MovieImageResponse {
+  id: number;
+  backdrops: ImageInfo[];
+  logos: ImageInfo[];
+  posters: ImageInfo[];
 }
