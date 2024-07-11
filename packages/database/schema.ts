@@ -34,7 +34,7 @@ export const reviews = pgTable(
     userId: integer("user_id")
       .references(() => users.id)
       .notNull(),
-    movieId: integer("movie_id"),
+    movieId: integer("movie_id").notNull(),
     review: text("review").notNull(),
   },
   (review) => ({ unique: unique().on(review.userId, review.movieId) })

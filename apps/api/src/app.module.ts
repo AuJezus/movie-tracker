@@ -7,6 +7,7 @@ import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { GlobalModule } from "./global.module";
 import { MoviesModule } from "./movies/movies.module";
 import { ListsModule } from './lists/lists.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ListsModule } from './lists/lists.module';
     UsersModule,
     MoviesModule,
     ListsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [{ provide: "APP_GUARD", useClass: JwtAuthGuard }],

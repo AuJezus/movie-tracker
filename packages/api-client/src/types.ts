@@ -1,3 +1,5 @@
+import { Review } from "database";
+
 export type SortBy =
   | "primary_release_date"
   | "vote_average"
@@ -83,3 +85,5 @@ export interface DiscoverMovieResponse {
   total_pages: number;
   total_results: number;
 }
+
+export type ReviewResponse = Review & { movie: MovieDetailsResponse };

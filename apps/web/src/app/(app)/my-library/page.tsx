@@ -1,16 +1,22 @@
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
-import { BiMovie, BiMoviePlay, BiTime, BiTrash } from "react-icons/bi";
+import {
+  BiMovie,
+  BiMoviePlay,
+  BiRevision,
+  BiTime,
+  BiTrash,
+} from "react-icons/bi";
 import Heading, { headingVariants } from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
 import { initApiClient, queryApiClient } from "~/lib/api";
 import { cookies } from "next/headers";
 import MovieList from "~/components/movie/movie-list";
-import MovieCard from "~/components/movie/movie-card";
 import getQueryClient from "~/lib/get-query-client";
 import ListMovieCards from "~/components/movie/list-movie-cards";
 import { Hydrate, dehydrate } from "@tanstack/react-query";
+import ReviewList from "~/components/review-list";
 
 const listIcons = [<BiMoviePlay />, <BiMovie />, <BiTrash />];
 
@@ -27,6 +33,9 @@ export default async function MyLibraryPage() {
   const listsRes = await apiClient.lists.getLists();
   if (listsRes.status !== 200) throw new Error("Could not get movie lists");
 
+  const reviewsRes = await apiClient.reviews.getReviews();
+  if (reviewsRes.status !== 200) throw new Error("Could not get reviews");
+
   const { user } = userRes.body;
   const stats = statsRes.body;
   const lists = listsRes.body;
@@ -37,6 +46,12 @@ export default async function MyLibraryPage() {
       ["lists", list.typeId],
       { ...listsRes, body: list },
     ),
+  );
+
+  queryApiClient.reviews.getReviews.setQueryData(
+    queryClient,
+    ["reviews"],
+    reviewsRes,
   );
 
   return (
@@ -97,6 +112,13 @@ export default async function MyLibraryPage() {
               {listIcons[i]} {list.name}
             </TabsTrigger>
           ))}
+
+          <TabsTrigger
+            value="review"
+            className="flex items-center gap-2 capitalize"
+          >
+            <BiRevision /> Reviews
+          </TabsTrigger>
         </TabsList>
 
         <Hydrate state={dehydrate(queryClient)}>
@@ -111,6 +133,10 @@ export default async function MyLibraryPage() {
               </MovieList>
             </TabsContent>
           ))}
+
+          <TabsContent value="review" asChild>
+            <ReviewList />
+          </TabsContent>
         </Hydrate>
       </Tabs>
     </PageContainer>

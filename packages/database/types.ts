@@ -12,3 +12,5 @@ export type MovieListType = InferSelectModel<typeof schema.listTypes>;
 export type ListMovie = InferSelectModel<typeof schema.listMovies>;
 export type NewListMovie = InferInsertModel<typeof schema.listMovies>;
 export type UpdateListMovie = Partial<ListMovie>;
+
+export type Review = InferSelectModel<typeof schema.reviews>;
