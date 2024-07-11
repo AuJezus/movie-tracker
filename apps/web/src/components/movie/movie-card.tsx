@@ -86,7 +86,7 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
 
         {/* Darken effect */}
         <div className="absolute -z-10 h-full w-full bg-gradient-to-t from-background to-transparent to-30%"></div>
-        <div className="absolute -z-10 h-full w-full translate-y-full bg-gradient-to-t from-background from-70% to-transparent opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-30 group-has-[[data-state=open]]:translate-y-0 group-has-[[data-state=open]]:opacity-30"></div>
+        <div className="absolute -z-10 h-full w-full translate-y-full bg-gradient-to-t from-background from-70% to-transparent opacity-0 transition-all group-has-[[data-state=open]]:translate-y-0 group-has-[[data-state=open]]:opacity-30 lg:group-hover:translate-y-0 lg:group-hover:opacity-30"></div>
 
         <div className="mt-2 flex flex-col gap-2">
           <div className="flex w-fit items-center gap-2 rounded-r-md bg-primary px-3 py-1.5 text-primary-foreground transition-transform">
@@ -94,7 +94,7 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
             /10
           </div>
 
-          <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0">
+          <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-has-[[data-state=open]]:translate-x-0 lg:group-hover:translate-x-0">
             <BiTime className="text-lg" />
             {`${Math.floor(movie.runtime / 60)}hr ${movie.runtime % 60}min`}
           </div>
@@ -103,7 +103,7 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
             <SelectTrigger
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "w-fit -translate-x-full gap-2 rounded-l-none border-0 capitalize transition-transform focus-within:ring-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0",
+                "w-fit -translate-x-full gap-2 rounded-l-none border-0 capitalize transition-transform focus-within:ring-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 group-has-[[data-state=open]]:translate-x-0 lg:group-hover:translate-x-0",
               )}
               icon={<MdMovieEdit />}
             >
@@ -128,7 +128,7 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
             </SelectContent>
           </Select>
 
-          <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-hover:translate-x-0 group-has-[[data-state=open]]:translate-x-0">
+          <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-has-[[data-state=open]]:translate-x-0 lg:group-hover:translate-x-0">
             <BiCalendarStar className="text-lg" />
             {format(movie.release_date, "yyyy-MM-dd")}
           </div>
