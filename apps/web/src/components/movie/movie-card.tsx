@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { MdMovieEdit } from "react-icons/md";
-import { BiCalendarStar, BiStar, BiTime } from "react-icons/bi";
+import { BiCalendarStar, BiFolderMinus, BiStar, BiTime } from "react-icons/bi";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "../ui/button";
@@ -30,27 +30,39 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
 
     const addMutation = queryApiClient.lists.addToList.useMutation();
     const editMutation = queryApiClient.lists.editListMovie.useMutation();
+    const deleteMutation = queryApiClient.lists.deleteListMovie.useMutation();
 
     const onSelect = useCallback(
-      async (listTypeId: string) => {
+      async (value: string) => {
         if (!list) {
           const { status, body } = await addMutation.mutateAsync({
-            body: { movieId: movie.id, listTypeId: Number(listTypeId) },
+            body: { movieId: movie.id, listTypeId: Number(value) },
           });
 
           if (status === 200) {
             setList({ listMovieId: body.id, typeId: body.listTypeId });
-            queryClient.invalidateQueries(["lists"]);
+            queryClient.invalidateQueries(["lists", body.listTypeId]);
           }
-        } else {
-          const { status, body } = await editMutation.mutateAsync({
-            body: { listTypeId: Number(listTypeId) },
+        } else if (value === "delete") {
+          const { status, body } = await deleteMutation.mutateAsync({
             params: { id: list.listMovieId.toString() },
           });
 
           if (status === 200) {
+            setList(undefined);
+            queryClient.invalidateQueries(["lists", body.listTypeId]);
+          }
+        } else {
+          const { status, body } = await editMutation.mutateAsync({
+            body: { listTypeId: Number(value) },
+            params: { id: list.listMovieId.toString() },
+          });
+
+          if (status === 200) {
+            queryClient.invalidateQueries(["lists", body.listTypeId]);
+            queryClient.invalidateQueries(["lists", list.typeId]);
+
             setList({ listMovieId: body.id, typeId: body.listTypeId });
-            queryClient.invalidateQueries(["lists"]);
           }
         }
       },
@@ -107,6 +119,12 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
                   {type.name}
                 </SelectItem>
               ))}
+
+              {!!list && (
+                <SelectItem value="delete" className="text-destructive">
+                  Remove From List
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
 

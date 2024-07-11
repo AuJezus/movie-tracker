@@ -94,4 +94,26 @@ export class ListsController {
       }
     );
   }
+
+  @TsRestHandler(contract.lists.deleteListMovie)
+  async deleteListMovie(@Req() req: Request) {
+    return tsRestHandler(contract.lists.deleteListMovie, async ({ params }) => {
+      const { sub: id }: JwtPayload = this.jwtService.decode(
+        req.cookies["access_token"]
+      );
+
+      const deletedListMovie = await this.listsService.deleteListMovie(
+        id,
+        params.id
+      );
+
+      if (!deletedListMovie)
+        return {
+          status: 404,
+          body: { message: "Could not find listMovie requested" },
+        };
+
+      return { status: 200, body: deletedListMovie };
+    });
+  }
 }

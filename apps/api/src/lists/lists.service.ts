@@ -3,6 +3,7 @@ import {
   MovieListType,
   NewListMovie,
   UpdateListMovie,
+  and,
   db,
   eq,
   listMovies,
@@ -86,5 +87,14 @@ export class ListsService {
       .returning();
 
     return movie[0];
+  }
+
+  async deleteListMovie(userId, listMovieId) {
+    const deletedListMovies = await db
+      .delete(listMovies)
+      .where(and(eq(listMovies.userId, userId), eq(listMovies.id, listMovieId)))
+      .returning();
+
+    return deletedListMovies?.[0];
   }
 }

@@ -68,6 +68,18 @@ export const listsContract = c.router(
         200: c.type<ListMovie>(),
       },
     },
+    deleteListMovie: {
+      method: "DELETE",
+      path: "/listMovie/:id",
+      pathParams: z.object({
+        id: z.string().transform(Number),
+      }),
+      body: z.object({}),
+      responses: {
+        200: c.type<ListMovie>(),
+        404: c.type<{ message: string }>(),
+      },
+    },
   },
   { pathPrefix: "/lists" }
 );
