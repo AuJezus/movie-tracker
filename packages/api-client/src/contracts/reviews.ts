@@ -12,6 +12,7 @@ export const reviewsContract = c.router(
       path: "/",
       responses: {
         200: c.type<ReviewResponse[]>(),
+        404: c.type<{ message: string }>(),
       },
     },
     addReview: {

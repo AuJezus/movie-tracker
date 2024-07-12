@@ -49,7 +49,7 @@ function ReviewForm({
       ["reviews", "movies", movieId],
       { params: { id: movieId.toString() } },
     );
-  const review = reviewsRes?.body;
+  const review = reviewsRes?.status === 200 ? reviewsRes.body : undefined;
 
   const { isLoading: isLoadingAdd, mutateAsync: mutateAddAsync } =
     queryApiClient.reviews.addReview.useMutation();
@@ -92,7 +92,7 @@ function ReviewForm({
         {!!review && (
           <>
             <div className="flex w-fit items-center gap-2 rounded-md border-2 bg-primary px-2 py-1 text-primary-foreground">
-              <BiStar /> {review.rating.toFixed(2)}
+              <BiStar /> {review?.rating?.toFixed(2)}
             </div>
 
             <BiEdit
