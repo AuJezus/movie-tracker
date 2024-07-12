@@ -14,3 +14,5 @@ export type NewListMovie = InferInsertModel<typeof schema.listMovies>;
 export type UpdateListMovie = Partial<ListMovie>;
 
 export type Review = InferSelectModel<typeof schema.reviews>;
+export type NewReview = InferInsertModel<typeof schema.reviews>;
+export type UpdateReview = Partial<Review>;

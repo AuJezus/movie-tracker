@@ -1,9 +1,10 @@
+import { Hydrate, dehydrate } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { BiEdit, BiStar } from "react-icons/bi";
-import { Button } from "~/components/ui/button";
+import {  BiStar } from "react-icons/bi";
+import ReviewForm from "~/components/review-form";
 import {
   Carousel,
   CarouselContent,
@@ -11,26 +12,30 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "~/components/ui/carousel";
-import Heading, { headingVariants } from "~/components/ui/heading";
+import Heading from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
 import { initApiClient } from "~/lib/api";
-import { testImageResponse, testMovieResponse } from "~/lib/mockData";
-import { cn } from "~/lib/utils";
+import getQueryClient from "~/lib/get-query-client";
 
 async function MovieDetailsPage({ params }: { params: { id: string } }) {
   const apiClient = initApiClient(cookies());
+  const queryClient = getQueryClient();
 
   const movieRes = await apiClient.movies.getMovieDetails({
     params: { id: params.id },
   });
   if (movieRes.status === 404) notFound();
   if (movieRes.status !== 200) throw new Error("Could not fetch movie details");
+  const movie = movieRes.body;
 
   const mediaRes = await apiClient.movies.getMovieMedia({
-    params: { id: params.id },
+    params: { id: movie.id.toString() },
   });
 
-  const movie = movieRes.body;
+  const reviewRes = await apiClient.reviews.getReviewByMovieId({
+    params: { id: movie.id.toString() },
+  });
+  queryClient.setQueryData(["reviews", "movies", movie.id], reviewRes);
 
   return (
     <PageContainer>
@@ -118,8 +123,8 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
 
       <p className="mb-8">{movie.overview}</p>
 
-      <div className="mb-12 flex flex-col gap-10 md:flex-row">
-        <div className="basis-3/5">
+      <div className="mb-12 flex w-full flex-col gap-10 md:flex-row">
+        <div className="flex-shrink-0 flex-grow-0 basis-3/5">
           <MovieStat name="Release Date">
             <p>{format(movie.release_date, "MMM d, yyyy")}</p>
           </MovieStat>
@@ -155,37 +160,12 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
           </MovieStat>
         </div>
 
-        <div className="basis-2/5">
-          <div className="mb-4 flex items-center justify-between">
-            <p className={cn(headingVariants(), "text-3xl")}>Your Review</p>
-            <div className="flex w-fit items-center gap-2 rounded-md border-2 bg-primary px-2 py-1 text-primary-foreground">
-              <BiStar /> 7.75
-            </div>
-            <BiEdit className="text-3xl text-primary  " />
-          </div>
-
-          {/* <p className="mb-2">You haven&apos;t reviewed this movie yet</p>
-          <Button size="sm">Mark as completed and write a review</Button> */}
-
-          <p>
-            Never have I EVER related to a movie more in my life. I just watched
-            it today in theaters, and it was worth every penny spent watching
-            it. This last year really has been anxiety-inducing for me, from
-            tests to friends, and Inside Out 2 was so accurate with all of the
-            emotions that can come from stressful changes in one’s life. It had
-            some really good funny moments sprinkled in there too, the comedic
-            timing was on point. Pixar made a movie that was relatable, funny, a
-            little heart wrenching, and I can confidently say it has been the
-            best thing they have put out since Onward (2020). The story was
-            cohesive, and instead of relying on overplayed plot tropes, they did
-            a really good job at keeping the story unique. I like how this movie
-            focused a little more on the friends aspect of life in contrast to
-            the previous movie, which focused more on family.
-          </p>
-        </div>
+        <Hydrate state={dehydrate(queryClient)}>
+          <ReviewForm movieId={movie.id} className="basis-2/5" />
+        </Hydrate>
       </div>
 
-      <Heading level="h2">More To Explore</Heading>
+      <Heading level="h2">Trending Movies</Heading>
       {/* <MovieList movies={testMovieResponse} /> */}
     </PageContainer>
   );
