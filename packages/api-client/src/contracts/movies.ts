@@ -55,6 +55,11 @@ export const moviesContract = c.router(
         404: c.type<{ message: string }>(),
       },
     },
+    getTrendingMovies: {
+      method: "GET",
+      path: "/trending",
+      responses: { 200: c.type<DiscoverMovieResponse>() },
+    },
   },
   { pathPrefix: "/movies" }
 );

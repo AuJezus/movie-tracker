@@ -177,4 +177,32 @@ export class MoviesService {
 
     return response.backdrops;
   }
+
+  async fetchTrendingMovies(userId: number) {
+    const response = await this.fetchMoviesApi<MovieResponse>(
+      "/trending/movie/week"
+    );
+
+    const moviesWithDetails = await Promise.all(
+      response.results.map((movie) => this.fetchMovieDetails(movie.id))
+    );
+
+    const moviesWithListData = await Promise.all(
+      moviesWithDetails.map(async (movie) => {
+        const listMovie = await db.query.listMovies.findFirst({
+          where: (listMovie, { eq, and }) =>
+            and(eq(listMovie.userId, userId), eq(listMovie.movieId, movie.id)),
+        });
+
+        if (!listMovie) return movie;
+
+        return {
+          ...movie,
+          list: { listMovieId: listMovie.id, typeId: listMovie.listTypeId },
+        };
+      })
+    );
+
+    return { ...response, results: moviesWithListData };
+  }
 }

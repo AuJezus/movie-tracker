@@ -3,7 +3,9 @@ import { format } from "date-fns";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import {  BiStar } from "react-icons/bi";
+import { BiStar } from "react-icons/bi";
+import MovieCard from "~/components/movie/movie-card";
+import MovieList from "~/components/movie/movie-list";
 import ReviewForm from "~/components/review-form";
 import {
   Carousel,
@@ -36,6 +38,8 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
     params: { id: movie.id.toString() },
   });
   queryClient.setQueryData(["reviews", "movies", movie.id], reviewRes);
+
+  const trendingMovieRes = await apiClient.movies.getTrendingMovies();
 
   return (
     <PageContainer>
@@ -165,8 +169,16 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
         </Hydrate>
       </div>
 
-      <Heading level="h2">Trending Movies</Heading>
-      {/* <MovieList movies={testMovieResponse} /> */}
+      {trendingMovieRes.status === 200 && (
+        <>
+          <Heading level="h2">Trending Movies</Heading>
+          <MovieList>
+            {trendingMovieRes.body.results.map((movie) => (
+              <MovieCard movie={movie} />
+            ))}
+          </MovieList>
+        </>
+      )}
     </PageContainer>
   );
 }

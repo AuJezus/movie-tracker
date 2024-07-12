@@ -42,6 +42,19 @@ export class MoviesController {
     });
   }
 
+  @TsRestHandler(contract.movies.getTrendingMovies)
+  async getTrendingMovies(@Req() req: Request) {
+    return tsRestHandler(contract.movies.getTrendingMovies, async () => {
+      const { sub: id }: JwtPayload = this.jwtService.decode(
+        req.cookies["access_token"]
+      );
+
+      const trendingMovies = await this.moviesService.fetchTrendingMovies(id);
+
+      return { status: 200, body: trendingMovies };
+    });
+  }
+
   @TsRestHandler(contract.movies.getMovieDetails)
   async getMovieDetails() {
     return tsRestHandler(
