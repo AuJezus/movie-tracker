@@ -131,7 +131,9 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
 
             <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-has-[[data-state=open]]:translate-x-0 lg:group-hover:translate-x-0">
               <BiCalendarStar className="text-lg" />
-              {format(movie.release_date, "yyyy-MM-dd")}
+              {movie.release_date
+                ? format(movie.release_date, "yyyy-MM-dd")
+                : "N/A"}
             </div>
           </div>
 

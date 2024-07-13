@@ -94,7 +94,7 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
           )}
 
           {mediaRes.status === 200 &&
-            mediaRes.body.pictures.map((picture) => (
+            mediaRes.body.pictures?.map((picture) => (
               <CarouselItem
                 key={picture.file_path}
                 className="relative lg:basis-4/6"

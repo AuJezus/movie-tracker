@@ -33,110 +33,120 @@ function MovieFilterSettings() {
 
   return (
     <div className="mb-4 flex flex-wrap gap-2">
-      {!!genres?.length && (
+      {!!filters.query ? (
+        <p className="text-destructive">
+          Filtering and sorting are not used when searching
+        </p>
+      ) : (
         <>
-          {filters.genre?.map((genre) => (
-            <div
-              key={genre}
-              className="flex cursor-pointer items-center gap-1 rounded-sm bg-primary px-2 py-1 text-sm text-primary-foreground"
-              onClick={() => removeFilters({ filter: "genre", value: genre })}
-            >
-              {genres.find((g) => +genre === g.id)?.name}
-              <BiX />
+          {!!genres?.length && (
+            <>
+              {filters.genre?.map((genre) => (
+                <div
+                  key={genre}
+                  className="flex cursor-pointer items-center gap-1 rounded-sm bg-primary px-2 py-1 text-sm text-primary-foreground"
+                  onClick={() =>
+                    removeFilters({ filter: "genre", value: genre })
+                  }
+                >
+                  {genres.find((g) => +genre === g.id)?.name}
+                  <BiX />
+                </div>
+              ))}
+            </>
+          )}
+
+          {!!filters.ratingFrom && (
+            <InputFilter
+              label="Rating from"
+              filter="ratingFrom"
+              type="number"
+              min={0}
+              max={filters.ratingTo ?? 10}
+            />
+          )}
+
+          {!!filters.ratingTo && (
+            <InputFilter
+              label="Rating to"
+              filter="ratingTo"
+              type="number"
+              min={filters.ratingFrom ?? 0}
+              max={10}
+            />
+          )}
+
+          {!!filters.runtimeFrom && (
+            <InputFilter
+              label="Runtime from (mins)"
+              filter="runtimeFrom"
+              type="number"
+              min={0}
+              max={filters.runtimeTo ?? undefined}
+              className="w-10"
+            />
+          )}
+
+          {!!filters.runtimeTo && (
+            <InputFilter
+              label="Runtime to (mins)"
+              filter="runtimeTo"
+              type="number"
+              min={filters.runtimeTo ?? 0}
+              className="w-10"
+            />
+          )}
+
+          {!!filters.releasedFrom && (
+            <InputFilter
+              label="Released from"
+              filter="releasedFrom"
+              type="date"
+              min={filters.releasedFrom ?? 0}
+              className="w-10"
+            />
+          )}
+
+          {!!filters.releasedTo && (
+            <InputFilter
+              label="Released to"
+              filter="releasedTo"
+              type="date"
+              min={filters.releasedTo ?? 0}
+              className="w-10"
+            />
+          )}
+
+          {!!filters.sortBy && !!filters.order && (
+            <div className="flex cursor-pointer items-center gap-1 rounded-sm bg-secondary px-2 py-1 text-sm text-secondary-foreground">
+              {`${sortByMap[filters.sortBy] ?? filters.sortBy}`}
+
+              <Select
+                value={filters.order}
+                onValueChange={(order) =>
+                  setFilters({ filter: "order", value: order })
+                }
+              >
+                <SelectTrigger className="ml-2 h-auto border-0 bg-transparent p-0 focus:ring-0 focus:ring-offset-0">
+                  <p>
+                    <SelectValue />
+                  </p>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">ascending</SelectItem>
+                  <SelectItem value="desc">descending</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <BiX
+                onClick={() =>
+                  removeFilters({ filter: "sortBy" }, { filter: "order" })
+                }
+                className="w-full cursor-pointer"
+              />
             </div>
-          ))}
+          )}
         </>
-      )}
-
-      {!!filters.ratingFrom && (
-        <InputFilter
-          label="Rating from"
-          filter="ratingFrom"
-          type="number"
-          min={0}
-          max={filters.ratingTo ?? 10}
-        />
-      )}
-
-      {!!filters.ratingTo && (
-        <InputFilter
-          label="Rating to"
-          filter="ratingTo"
-          type="number"
-          min={filters.ratingFrom ?? 0}
-          max={10}
-        />
-      )}
-
-      {!!filters.runtimeFrom && (
-        <InputFilter
-          label="Runtime from (mins)"
-          filter="runtimeFrom"
-          type="number"
-          min={0}
-          max={filters.runtimeTo ?? undefined}
-          className="w-10"
-        />
-      )}
-
-      {!!filters.runtimeTo && (
-        <InputFilter
-          label="Runtime to (mins)"
-          filter="runtimeTo"
-          type="number"
-          min={filters.runtimeTo ?? 0}
-          className="w-10"
-        />
-      )}
-
-      {!!filters.releasedFrom && (
-        <InputFilter
-          label="Released from"
-          filter="releasedFrom"
-          type="date"
-          min={filters.releasedFrom ?? 0}
-          className="w-10"
-        />
-      )}
-
-      {!!filters.releasedTo && (
-        <InputFilter
-          label="Released to"
-          filter="releasedTo"
-          type="date"
-          min={filters.releasedTo ?? 0}
-          className="w-10"
-        />
-      )}
-
-      {!!filters.sortBy && !!filters.order && (
-        <div className="flex cursor-pointer items-center gap-1 rounded-sm bg-secondary px-2 py-1 text-sm text-secondary-foreground">
-          {`${sortByMap[filters.sortBy] ?? filters.sortBy}`}
-
-          <Select
-            value={filters.order}
-            onValueChange={(order) =>
-              setFilters({ filter: "order", value: order })
-            }
-          >
-            <SelectTrigger className="ml-2 h-auto border-0 bg-transparent p-0 focus:ring-0 focus:ring-offset-0">
-              <p>
-                <SelectValue />
-              </p>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="asc">ascending</SelectItem>
-              <SelectItem value="desc">descending</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <BiX
-            onClick={() =>
-              removeFilters({ filter: "sortBy" }, { filter: "order" })
-            }
-            className="w-full cursor-pointer"
-          />
-        </div>
       )}
     </div>
   );

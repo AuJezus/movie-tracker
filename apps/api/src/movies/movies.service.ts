@@ -78,6 +78,9 @@ export class MoviesService {
 
     const preparedFilters = { ...defaultFilters, ...filters };
 
+    if (!!filters.query) {
+    }
+
     if (filters) {
       const nonEmptyFilters = Object.entries(preparedFilters).filter(
         ([, value]) =>
@@ -97,12 +100,13 @@ export class MoviesService {
       });
     }
 
-    const response = await this.fetchMoviesApi<MovieResponse>(
-      "/discover/movie",
-      {
-        params,
-      }
-    );
+    const response = !!filters.query
+      ? await this.fetchMoviesApi<MovieResponse>("/search/movie", {
+          params: { query: filters.query, page },
+        })
+      : await this.fetchMoviesApi<MovieResponse>("/discover/movie", {
+          params,
+        });
 
     const moviesWithDetails = await Promise.all(
       response.results.map((movie) => this.fetchMovieDetails(movie.id))

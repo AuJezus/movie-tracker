@@ -8,6 +8,7 @@ export const sortByMap: Record<string, string> = {
 };
 
 export const discoverFilters: DiscoverFilter[] = [
+  "query",
   "genre",
   "order",
   "ratingFrom",

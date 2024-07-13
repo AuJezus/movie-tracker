@@ -17,7 +17,7 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { LucideChevronRight } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
 import { queryApiClient } from "~/lib/api";
 import { DiscoverFilter, SortBy } from "api-contract";
@@ -33,7 +33,8 @@ export const defaultFilters = {
 };
 
 function MovieFilterBar() {
-  const { setFilters } = useFilterSearchParams();
+  const { setFilters, filters } = useFilterSearchParams();
+  const [query, setQuery] = useState("");
 
   const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
     "genres",
@@ -70,6 +71,14 @@ function MovieFilterBar() {
     },
     [setFilters],
   );
+
+  useEffect(() => {
+    const timeoutId = setTimeout(
+      () => setFilters({ filter: "query", value: query }),
+      500,
+    );
+    return () => clearTimeout(timeoutId);
+  }, [query]);
 
   return (
     <Menubar className="mb-2 flex h-fit w-fit flex-wrap border-2">
@@ -195,6 +204,22 @@ function MovieFilterBar() {
             </MenubarSub>
           )}
         </MenubarContent>
+      </MenubarMenu>
+
+      <MenubarMenu>
+        <label
+          htmlFor="search"
+          className="group !ml-0 flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium focus-within:bg-accent hover:bg-accent sm:!ml-2"
+        >
+          Search:
+          <input
+            id="search"
+            placeholder="..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="bg-transparent text-sm font-normal focus-visible:outline-none"
+          />
+        </label>
       </MenubarMenu>
     </Menubar>
   );

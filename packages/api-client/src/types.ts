@@ -7,6 +7,7 @@ export type SortBy =
   | "popularity";
 
 export interface DiscoverFilters {
+  query?: string;
   genre?: string[];
   ratingFrom?: string;
   ratingTo?: string;

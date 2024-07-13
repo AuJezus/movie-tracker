@@ -51,7 +51,7 @@ export const moviesContract = c.router(
         id: z.string().transform(Number),
       }),
       responses: {
-        200: c.type<{ ytKey: string; pictures: ImageInfo[] }>(),
+        200: c.type<{ ytKey: string; pictures?: ImageInfo[] }>(),
         404: c.type<{ message: string }>(),
       },
     },
