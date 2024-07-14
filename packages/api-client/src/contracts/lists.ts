@@ -1,39 +1,12 @@
 import { initContract } from "@ts-rest/core";
-import {
-  MovieListType,
-  NewListMovie,
-  ListMovie,
-  UpdateListMovie,
-  NewFavouriteMovie,
-  FavouriteMovie,
-} from "database";
+import { NewListMovie, ListMovie, UpdateListMovie, ListType } from "database";
+import { MovieList } from "../types";
 import { z } from "zod";
-import { DiscoverMovie, MovieList } from "../types";
 
 const c = initContract();
 
 export const listsContract = c.router(
   {
-    getTypes: {
-      method: "GET",
-      path: "/types",
-      responses: {
-        200: c.type<MovieListType[]>(),
-      },
-    },
-    getType: {
-      method: "GET",
-      path: "/types/:id",
-      pathParams: z.object({
-        id: z.string().transform(Number),
-      }),
-      responses: {
-        200: c.type<MovieListType>(),
-        404: z.object({
-          message: z.string(),
-        }),
-      },
-    },
     getLists: {
       method: "GET",
       path: "/",
@@ -43,83 +16,61 @@ export const listsContract = c.router(
     },
     getList: {
       method: "GET",
-      path: "/:id",
+      path: "/:listTypeId",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        listTypeId: z.string().transform(Number),
       }),
       responses: {
         200: c.type<MovieList>(),
       },
     },
+
+    getListTypes: {
+      method: "GET",
+      path: "/types",
+      responses: {
+        200: c.type<ListType[]>(),
+      },
+    },
+    getListType: {
+      method: "GET",
+      path: "/types/:listTypeId",
+      pathParams: z.object({
+        listTypeId: z.string().transform(Number),
+      }),
+      responses: {
+        200: c.type<ListType>(),
+      },
+    },
+
     addToList: {
       method: "POST",
-      path: "/listMovie",
+      path: "/movie",
       body: c.type<Omit<NewListMovie, "userId">>(),
       responses: {
         200: c.type<ListMovie>(),
       },
     },
-    editListMovie: {
+    editMovie: {
       method: "PATCH",
-      path: "/listMovie/:id",
+      path: "/movie/:listMovieId",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        listMovieId: z.string().transform(Number),
       }),
       body: c.type<Omit<UpdateListMovie, "userId">>(),
       responses: {
         200: c.type<ListMovie>(),
       },
     },
-    deleteListMovie: {
+    deleteMovie: {
       method: "DELETE",
-      path: "/listMovie/:id",
+      path: "/movie/:listMovieId",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        listMovieId: z.string().transform(Number),
       }),
       body: z.object({}),
       responses: {
         200: c.type<ListMovie>(),
-        404: c.type<{ message: string }>(),
-      },
-    },
-    getFavourites: {
-      method: "GET",
-      path: "/favourites",
-      responses: {
-        200: c.type<DiscoverMovie[]>(),
-      },
-    },
-    getFavourite: {
-      method: "GET",
-      path: "/favourites/:movieId",
-      pathParams: z.object({
-        movieId: z.string().transform(Number),
-      }),
-      responses: {
-        200: c.type<FavouriteMovie>(),
-        404: c.type<{ message: string }>(),
-      },
-    },
-    addToFavourites: {
-      method: "POST",
-      path: "/favourites/:movieId",
-      pathParams: z.object({
-        movieId: z.string().transform(Number),
-      }),
-      body: c.type<Omit<NewFavouriteMovie, "userId">>(),
-      responses: {
-        200: c.type<FavouriteMovie>(),
-      },
-    },
-    deleteFromFavourites: {
-      method: "DELETE",
-      path: "/favourites/:movieId",
-      pathParams: z.object({
-        movieId: z.string().transform(Number),
-      }),
-      body: z.object({}),
-      responses: {
-        200: c.type<FavouriteMovie>(),
       },
     },
   },

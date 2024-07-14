@@ -1,36 +1,10 @@
-import { Review } from "database";
-
-export type SortBy =
-  | "primary_release_date"
-  | "vote_average"
-  | "title"
-  | "popularity";
-
-export interface DiscoverFilters {
-  query?: string;
-  genre?: string[];
-  ratingFrom?: string;
-  ratingTo?: string;
-  runtimeFrom?: string;
-  runtimeTo?: string;
-  releasedFrom?: string;
-  releasedTo?: string;
-  sortBy?: SortBy;
-  order?: "asc" | "desc";
-}
-
-export type DiscoverFilter = keyof DiscoverFilters;
-
-export interface GenreResponse {
-  genres: Genre[];
-}
+import { FavouriteMovie, ListMovie, ListType } from "database";
 
 export interface Genre {
   id: number;
   name: string;
 }
-
-export interface MovieDetailsResponse {
+export interface MovieDetails {
   adult: boolean;
   backdrop_path: string;
   belongs_to_collection: string;
@@ -70,24 +44,10 @@ export interface MovieDetailsResponse {
   vote_count: number;
 }
 
-export interface MovieList {
-  typeId: number;
-  name: string;
-  movies: DiscoverMovie[];
-}
-
-export type DiscoverMovie = MovieDetailsResponse & {
-  list?: { listMovieId: number; typeId: number };
+export type Movie = MovieDetails & {
+  list?: Omit<ListMovie, "listTypeId"> & { listType: ListType };
+  favourite?: FavouriteMovie;
 };
-
-export interface DiscoverMovieResponse {
-  page: number;
-  results: DiscoverMovie[];
-  total_pages: number;
-  total_results: number;
-}
-
-export type ReviewResponse = Review & { movie: MovieDetailsResponse };
 
 export interface ImageInfo {
   aspect_ratio: number;
@@ -98,3 +58,28 @@ export interface ImageInfo {
   vote_count: number;
   width: number;
 }
+
+export interface MovieList {
+  typeId: number;
+  name: string;
+  movies: Movie[];
+}
+
+export type SortBy =
+  | "primary_release_date"
+  | "vote_average"
+  | "title"
+  | "popularity";
+export interface DiscoverFilters {
+  query?: string;
+  genre?: string[];
+  ratingFrom?: string;
+  ratingTo?: string;
+  runtimeFrom?: string;
+  runtimeTo?: string;
+  releasedFrom?: string;
+  releasedTo?: string;
+  sortBy?: SortBy;
+  order?: "asc" | "desc";
+}
+export type DiscoverFilter = keyof DiscoverFilters;

@@ -6,8 +6,8 @@ import { ConfigModule } from "@nestjs/config";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { GlobalModule } from "./global.module";
 import { MoviesModule } from "./movies/movies.module";
-import { ListsModule } from './lists/lists.module';
-import { ReviewsModule } from './reviews/reviews.module';
+import { ListsModule } from "./lists/lists.module";
+import { ReviewsModule } from "./reviews/reviews.module";
 
 @Module({
   imports: [

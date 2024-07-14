@@ -12,10 +12,10 @@ import { Public } from "./decorators/public";
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @TsRestHandler(contract.auth.google)
+  @TsRestHandler(contract.auth.redirectToGoogleLogin)
   @UseGuards(GoogleOAuthGuard)
   async googleAuth() {
-    return tsRestHandler(contract.auth.google, async () => null);
+    return tsRestHandler(contract.auth.redirectToGoogleLogin, async () => null);
   }
 
   @TsRestHandler(contract.auth.googleCallback)

@@ -1,6 +1,5 @@
 import { initContract } from "@ts-rest/core";
 import { User } from "database";
-import { MovieDetailsResponse } from "../types";
 
 const c = initContract();
 
@@ -13,6 +12,7 @@ export const usersContract = c.router(
         200: c.type<{ user: User }>(),
       },
     },
+
     getStats: {
       method: "GET",
       path: "/stats",
@@ -20,7 +20,7 @@ export const usersContract = c.router(
         200: c.type<{
           watchTime: number;
           moviesWatched: number;
-          lastMovie?: MovieDetailsResponse;
+          lastMovieTitle?: string;
         }>(),
       },
     },

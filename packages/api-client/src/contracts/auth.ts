@@ -3,28 +3,20 @@ import { z } from "zod";
 
 const c = initContract();
 
-export const authContract = c.router(
-  {
-    google: {
-      method: "GET",
-      path: "/google",
-      responses: {},
-    },
-    googleCallback: {
-      method: "GET",
-      path: "/google/callback",
-      responses: {
-        200: z.literal("Signed in"),
-      },
+export const authContract = c.router({
+  redirectToGoogleLogin: {
+    method: "GET",
+    path: "/google",
+    responses: {
+      302: z.undefined(),
     },
   },
-  {
-    commonResponses: {
-      302: c.otherResponse({
-        contentType: "application/json",
-        body: z.null(),
-      }),
+  googleCallback: {
+    method: "GET",
+    path: "/google/callback",
+    responses: {
+      200: z.literal("Signed in"),
+      302: z.undefined(),
     },
-    pathPrefix: "/auth",
-  }
-);
+  },
+});

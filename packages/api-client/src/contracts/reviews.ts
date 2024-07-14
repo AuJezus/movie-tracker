@@ -1,7 +1,7 @@
 import { initContract } from "@ts-rest/core";
-import { ReviewResponse } from "../types";
-import { z } from "zod";
 import { NewReview, Review, UpdateReview } from "database";
+import { Movie } from "../types";
+import { z } from "zod";
 
 const c = initContract();
 
@@ -11,8 +11,7 @@ export const reviewsContract = c.router(
       method: "GET",
       path: "/",
       responses: {
-        200: c.type<ReviewResponse[]>(),
-        404: c.type<{ message: string }>(),
+        200: c.type<Review[]>(),
       },
     },
     addReview: {
@@ -25,9 +24,9 @@ export const reviewsContract = c.router(
     },
     editReview: {
       method: "PATCH",
-      path: "/:id",
+      path: "/:reviewId",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        reviewId: z.string().transform(Number),
       }),
       body: c.type<Omit<UpdateReview, "userId">>(),
       responses: {
@@ -36,24 +35,31 @@ export const reviewsContract = c.router(
     },
     deleteReview: {
       method: "DELETE",
-      path: "/:id",
+      path: "/:reviewId",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        reviewId: z.string().transform(Number),
       }),
       body: z.object({}),
       responses: {
         200: c.type<Review>(),
       },
     },
+
     getReviewByMovieId: {
       method: "GET",
-      path: "/movies/:id",
+      path: "/movies/:movieId",
       pathParams: z.object({
         id: z.string().transform(Number),
       }),
       responses: {
         200: c.type<Review>(),
-        404: c.type<{ message: string }>(),
+      },
+    },
+    getReviewedMovies: {
+      method: "GET",
+      path: "/movies",
+      responses: {
+        200: c.type<Review & { movie: Movie }>(),
       },
     },
   },

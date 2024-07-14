@@ -8,16 +8,6 @@ import { reviewsContract } from "./contracts/reviews";
 
 const c = initContract();
 
-export const unauthorizedResponse = {
-  401: c.otherResponse({
-    contentType: "application/json",
-    body: c.type<{
-      message: "Unauthorized";
-      statusCode: 401;
-    }>(),
-  }),
-};
-
 export const contract = c.router(
   {
     hello: helloContract,
@@ -27,5 +17,14 @@ export const contract = c.router(
     lists: listsContract,
     reviews: reviewsContract,
   },
-  { commonResponses: { ...unauthorizedResponse } }
+  {
+    commonResponses: {
+      401: c.type<{
+        message: "Unauthorized";
+        statusCode: 401;
+      }>(),
+      404: c.type<{ message: string }>(),
+      500: c.type<{ message: "Internal server error"; statusCode: 500 }>(),
+    },
+  }
 );
