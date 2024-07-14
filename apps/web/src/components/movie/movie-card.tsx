@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { forwardRef, useCallback, useState } from "react";
+import { MouseEvent, forwardRef, useCallback, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -10,7 +10,15 @@ import {
   SelectValue,
 } from "../ui/select";
 import { MdMovieEdit } from "react-icons/md";
-import { BiCalendarStar, BiFolderMinus, BiStar, BiTime } from "react-icons/bi";
+import {
+  BiCalendarStar,
+  BiFolderMinus,
+  BiHeart,
+  BiSolidHeart,
+  BiSolidStar,
+  BiStar,
+  BiTime,
+} from "react-icons/bi";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "../ui/button";
@@ -29,9 +37,41 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
       "types",
     ]);
 
+    const { data: favouriteRes } = queryApiClient.lists.getFavourite.useQuery(
+      ["favourites", movie.id],
+      { params: { movieId: movie.id.toString() } },
+    );
+
     const addMutation = queryApiClient.lists.addToList.useMutation();
     const editMutation = queryApiClient.lists.editListMovie.useMutation();
     const deleteMutation = queryApiClient.lists.deleteListMovie.useMutation();
+
+    const addFavouriteMutation =
+      queryApiClient.lists.addToFavourites.useMutation();
+    const deleteFavouriteMutation =
+      queryApiClient.lists.deleteFromFavourites.useMutation();
+
+    const onFavourite = useCallback(
+      (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!favouriteRes?.body?.movieId)
+          addFavouriteMutation.mutate({
+            params: { movieId: movie.id.toString() },
+            body: { movieId: movie.id },
+          });
+        else {
+          deleteFavouriteMutation.mutate({
+            params: { movieId: movie.id.toString() },
+            body: { movieId: movie.id },
+          });
+        }
+
+        queryClient.invalidateQueries(["favourites", movie.id]);
+      },
+      [favouriteRes],
+    );
 
     const onSelect = useCallback(
       async (value: string) => {
@@ -90,9 +130,24 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
           <div className="absolute -z-10 h-full w-full translate-y-full bg-gradient-to-t from-background from-70% to-transparent opacity-0 transition-all group-has-[[data-state=open]]:translate-y-0 group-has-[[data-state=open]]:opacity-30 lg:group-hover:translate-y-0 lg:group-hover:opacity-30"></div>
 
           <div className="mt-2 flex flex-col gap-2">
-            <div className="flex w-fit items-center gap-2 rounded-r-md bg-primary px-3 py-1.5 text-primary-foreground transition-transform">
-              <BiStar className="text-lg" /> {movie.vote_average.toFixed(2)}
-              /10
+            <div className="flex items-center justify-between text-primary-foreground">
+              <div className="flex w-fit items-center gap-2 rounded-r-md bg-primary px-3 py-1.5 transition-transform">
+                <BiStar className="text-lg" /> {movie.vote_average.toFixed(2)}
+                /10
+              </div>
+
+              <button
+                onClick={onFavourite}
+                className="mr-2 rounded-full bg-primary p-2 text-xl"
+              >
+                {!favouriteRes?.body?.movieId && (
+                  <BiHeart className="text-primary-foreground" />
+                )}
+
+                {!!favouriteRes?.body?.movieId && (
+                  <BiSolidHeart className="text-primary-foreground" />
+                )}
+              </button>
             </div>
 
             <div className="flex w-fit translate-x-full items-center gap-2 self-end rounded-l-md bg-secondary px-3 py-1.5 text-secondary-foreground transition-transform group-has-[[data-state=open]]:translate-x-0 lg:group-hover:translate-x-0">

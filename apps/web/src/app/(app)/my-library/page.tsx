@@ -5,6 +5,7 @@ import {
   BiMovie,
   BiMoviePlay,
   BiRevision,
+  BiSolidHeart,
   BiTime,
   BiTrash,
 } from "react-icons/bi";
@@ -17,6 +18,7 @@ import getQueryClient from "~/lib/get-query-client";
 import ListMovieCards from "~/components/movie/list-movie-cards";
 import { Hydrate, dehydrate } from "@tanstack/react-query";
 import ReviewList from "~/components/review-list";
+import MovieCard from "~/components/movie/movie-card";
 
 const listIcons = [<BiMoviePlay />, <BiMovie />, <BiTrash />];
 
@@ -36,9 +38,13 @@ export default async function MyLibraryPage() {
   const reviewsRes = await apiClient.reviews.getReviews();
   if (reviewsRes.status !== 200) throw new Error("Could not get reviews");
 
+  const favouritesRes = await apiClient.lists.getFavourites();
+  if (favouritesRes.status !== 200) throw new Error("Could not get favourites");
+
   const { user } = userRes.body;
   const stats = statsRes.body;
   const lists = listsRes.body;
+  const favourites = favouritesRes.body;
 
   lists.forEach((list) =>
     queryApiClient.lists.getList.setQueryData(
@@ -114,6 +120,13 @@ export default async function MyLibraryPage() {
           ))}
 
           <TabsTrigger
+            value="favourites"
+            className="flex items-center gap-2 capitalize"
+          >
+            <BiSolidHeart /> Favourites
+          </TabsTrigger>
+
+          <TabsTrigger
             value="review"
             className="flex items-center gap-2 capitalize"
           >
@@ -133,6 +146,14 @@ export default async function MyLibraryPage() {
               </MovieList>
             </TabsContent>
           ))}
+
+          <TabsContent value="favourites" asChild>
+            <MovieList>
+              {favourites.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} />
+              ))}
+            </MovieList>
+          </TabsContent>
 
           <TabsContent value="review" asChild>
             <ReviewList />

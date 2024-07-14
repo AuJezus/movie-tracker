@@ -70,3 +70,20 @@ export const listMovies = pgTable(
     uniqueMovies: unique().on(listMovie.userId, listMovie.movieId),
   })
 );
+
+export const favouriteMovies = pgTable(
+  "favourite_movies",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    movieId: integer("movie_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (favouriteMovie) => ({
+    uniqueMovies: unique().on(favouriteMovie.userId, favouriteMovie.movieId),
+  })
+);

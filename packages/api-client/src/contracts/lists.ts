@@ -4,9 +4,11 @@ import {
   NewListMovie,
   ListMovie,
   UpdateListMovie,
+  NewFavouriteMovie,
+  FavouriteMovie,
 } from "database";
 import { z } from "zod";
-import { MovieList } from "../types";
+import { DiscoverMovie, MovieList } from "../types";
 
 const c = initContract();
 
@@ -78,6 +80,46 @@ export const listsContract = c.router(
       responses: {
         200: c.type<ListMovie>(),
         404: c.type<{ message: string }>(),
+      },
+    },
+    getFavourites: {
+      method: "GET",
+      path: "/favourites",
+      responses: {
+        200: c.type<DiscoverMovie[]>(),
+      },
+    },
+    getFavourite: {
+      method: "GET",
+      path: "/favourites/:movieId",
+      pathParams: z.object({
+        movieId: z.string().transform(Number),
+      }),
+      responses: {
+        200: c.type<FavouriteMovie>(),
+        404: c.type<{ message: string }>(),
+      },
+    },
+    addToFavourites: {
+      method: "POST",
+      path: "/favourites/:movieId",
+      pathParams: z.object({
+        movieId: z.string().transform(Number),
+      }),
+      body: c.type<Omit<NewFavouriteMovie, "userId">>(),
+      responses: {
+        200: c.type<FavouriteMovie>(),
+      },
+    },
+    deleteFromFavourites: {
+      method: "DELETE",
+      path: "/favourites/:movieId",
+      pathParams: z.object({
+        movieId: z.string().transform(Number),
+      }),
+      body: z.object({}),
+      responses: {
+        200: c.type<FavouriteMovie>(),
       },
     },
   },

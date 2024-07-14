@@ -47,6 +47,38 @@ export class ListsController {
     });
   }
 
+  @TsRestHandler(contract.lists.getFavourites)
+  async getFavouritesList(@Req() req: Request) {
+    return tsRestHandler(contract.lists.getFavourites, async () => {
+      const { sub: id }: JwtPayload = this.jwtService.decode(
+        req.cookies["access_token"]
+      );
+
+      const favourites = await this.listsService.getFavouritesList(id);
+
+      return { status: 200, body: favourites };
+    });
+  }
+
+  @TsRestHandler(contract.lists.getFavourite)
+  async getFavouriteMovie(@Req() req: Request) {
+    return tsRestHandler(contract.lists.getFavourite, async ({ params }) => {
+      const { sub: id }: JwtPayload = this.jwtService.decode(
+        req.cookies["access_token"]
+      );
+
+      const favourite = await this.listsService.getFavouriteMovie(
+        id,
+        params.movieId
+      );
+
+      if (!favourite)
+        return { status: 404, body: { message: "Could not find list" } };
+
+      return { status: 200, body: favourite };
+    });
+  }
+
   @TsRestHandler(contract.lists.getList)
   async getList(@Req() req: Request) {
     return tsRestHandler(contract.lists.getList, async ({ params }) => {
@@ -115,5 +147,46 @@ export class ListsController {
 
       return { status: 200, body: deletedListMovie };
     });
+  }
+
+  @TsRestHandler(contract.lists.addToFavourites)
+  async addToFavourites(@Req() req: Request) {
+    return tsRestHandler(contract.lists.addToFavourites, async ({ params }) => {
+      const { sub: id }: JwtPayload = this.jwtService.decode(
+        req.cookies["access_token"]
+      );
+
+      const result = await this.listsService.addToFavourites(
+        id,
+        params.movieId
+      );
+
+      return { status: 200, body: result };
+    });
+  }
+
+  @TsRestHandler(contract.lists.deleteFromFavourites)
+  async deleteFromFavourites(@Req() req: Request) {
+    return tsRestHandler(
+      contract.lists.deleteFromFavourites,
+      async ({ params }) => {
+        const { sub: id }: JwtPayload = this.jwtService.decode(
+          req.cookies["access_token"]
+        );
+
+        const deletedMovie = await this.listsService.deleteFromFavourites(
+          id,
+          params.movieId
+        );
+
+        if (!deletedMovie)
+          return {
+            status: 404,
+            body: { message: "Could not find favourite movie requested" },
+          };
+
+        return { status: 200, body: deletedMovie };
+      }
+    );
   }
 }
