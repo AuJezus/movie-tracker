@@ -49,7 +49,7 @@ export const reviewsContract = c.router(
       method: "GET",
       path: "/movies/:movieId",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        movieId: z.string().transform(Number),
       }),
       responses: {
         200: c.type<Review>(),
@@ -59,7 +59,7 @@ export const reviewsContract = c.router(
       method: "GET",
       path: "/movies",
       responses: {
-        200: c.type<Review & { movie: Movie }>(),
+        200: c.type<(Movie & { review: Review })[]>(),
       },
     },
   },

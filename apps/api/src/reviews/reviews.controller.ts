@@ -2,25 +2,22 @@ import { Controller, Req } from "@nestjs/common";
 import { ReviewsService } from "./reviews.service";
 import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
 import { contract } from "api-contract";
-import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { JwtPayload } from "src/auth/strategies/jwt.strategy";
+import { AuthService } from "src/auth/auth.service";
 
 @Controller()
 export class ReviewsController {
   constructor(
     private readonly reviewsService: ReviewsService,
-    private jwtService: JwtService
+    private readonly authService: AuthService
   ) {}
 
   @TsRestHandler(contract.reviews.getReviews)
   async getReviews(@Req() req: Request) {
     return tsRestHandler(contract.reviews.getReviews, async () => {
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
 
-      const reviews = await this.reviewsService.getReviews(id);
+      const reviews = await this.reviewsService.getReviews(userId);
 
       return { status: 200, body: reviews };
     });
@@ -29,13 +26,11 @@ export class ReviewsController {
   @TsRestHandler(contract.reviews.addReview)
   async addReview(@Req() req: Request) {
     return tsRestHandler(contract.reviews.addReview, async ({ body }) => {
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
 
-      const review = await this.reviewsService.addReview(id, body);
+      const newReview = await this.reviewsService.addReview(userId, body);
 
-      return { status: 200, body: review };
+      return { status: 200, body: newReview };
     });
   }
 
@@ -44,14 +39,18 @@ export class ReviewsController {
     return tsRestHandler(
       contract.reviews.editReview,
       async ({ params, body }) => {
-        const { sub: id }: JwtPayload = this.jwtService.decode(
-          req.cookies["access_token"]
-        );
+        const userId = this.authService.getUserIdFromJwt(req.cookies);
 
-        const updatedReview = await this.reviewsService.editReview(id, {
+        const updatedReview = await this.reviewsService.editReview(userId, {
           ...body,
-          id: params.id,
+          id: params.reviewId,
         });
+
+        if (!updatedReview)
+          return {
+            status: 404,
+            body: { message: "Could not find review with given id" },
+          };
 
         return { status: 200, body: updatedReview };
       }
@@ -61,14 +60,18 @@ export class ReviewsController {
   @TsRestHandler(contract.reviews.deleteReview)
   async deleteReview(@Req() req: Request) {
     return tsRestHandler(contract.reviews.deleteReview, async ({ params }) => {
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
 
       const deletedReview = await this.reviewsService.deleteReview(
-        id,
-        params.id
+        userId,
+        params.reviewId
       );
+
+      if (!deletedReview)
+        return {
+          status: 404,
+          body: { message: "Could not find review with given id" },
+        };
 
       return { status: 200, body: deletedReview };
     });
@@ -79,23 +82,33 @@ export class ReviewsController {
     return tsRestHandler(
       contract.reviews.getReviewByMovieId,
       async ({ params }) => {
-        const { sub: id }: JwtPayload = this.jwtService.decode(
-          req.cookies["access_token"]
-        );
+        const userId = this.authService.getUserIdFromJwt(req.cookies);
 
         const review = await this.reviewsService.getReviewByMovieId(
-          id,
-          params.id
+          userId,
+          params.movieId
         );
 
         if (!review)
           return {
             status: 404,
-            body: { message: "Could not find requested review" },
+            body: { message: "Could not find review with given movieId" },
           };
 
         return { status: 200, body: review };
       }
     );
+  }
+
+  @TsRestHandler(contract.reviews.getReviewedMovies)
+  async getReviewedMovies(@Req() req: Request) {
+    return tsRestHandler(contract.reviews.getReviewedMovies, async () => {
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
+
+      const reviewedMovies =
+        await this.reviewsService.getReviewedMovies(userId);
+
+      return { status: 200, body: reviewedMovies };
+    });
   }
 }

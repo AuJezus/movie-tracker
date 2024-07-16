@@ -8,6 +8,7 @@ import { GlobalModule } from "./global.module";
 import { MoviesModule } from "./movies/movies.module";
 import { ListsModule } from "./lists/lists.module";
 import { ReviewsModule } from "./reviews/reviews.module";
+import { FavouritesModule } from './favourites/favourites.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ReviewsModule } from "./reviews/reviews.module";
     MoviesModule,
     ListsModule,
     ReviewsModule,
+    FavouritesModule,
   ],
   controllers: [AppController],
   providers: [{ provide: "APP_GUARD", useClass: JwtAuthGuard }],

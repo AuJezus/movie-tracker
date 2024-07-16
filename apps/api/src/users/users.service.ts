@@ -29,7 +29,7 @@ export class UsersService {
     const watchedMovies = await Promise.all(
       watchedListMovies.map(
         async (listMovie) =>
-          await this.moviesService.fetchMovieDetails(listMovie.movieId)
+          await this.moviesService.fetchMovie(userId, listMovie.movieId)
       )
     );
 

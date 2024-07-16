@@ -18,9 +18,9 @@ export const moviesContract = c.router(
     },
     getMovieMedia: {
       method: "GET",
-      path: "/:id/media",
+      path: "/:movieId/media",
       pathParams: z.object({
-        id: z.string().transform(Number),
+        movieId: z.string().transform(Number),
       }),
       responses: {
         200: c.type<{ trailer: string; pictures?: ImageInfo[] }>(),

@@ -63,4 +63,12 @@ export class AuthService {
 
     return user;
   }
+
+  getUserIdFromJwt(cookies: Record<string, any>) {
+    const { sub: userId }: JwtPayload = this.jwtService.decode(
+      cookies["access_token"]
+    );
+
+    return userId;
+  }
 }

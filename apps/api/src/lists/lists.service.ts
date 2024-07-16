@@ -1,50 +1,36 @@
 import { Injectable } from "@nestjs/common";
+import { Movie } from "api-contract";
 import {
-  MovieListType,
+  ListType,
   NewListMovie,
   UpdateListMovie,
   and,
   db,
   eq,
-  favouriteMovies,
   listMovies,
   listTypes,
 } from "database";
+import { FavouritesService } from "src/favourites/favourites.service";
 import { MoviesService } from "src/movies/movies.service";
 
 @Injectable()
 export class ListsService {
-  constructor(private moviesService: MoviesService) {}
+  constructor(
+    private moviesService: MoviesService,
+    private favouriteService: FavouritesService
+  ) {}
 
-  async getTypes() {
-    const types = await db.select().from(listTypes);
-
-    return types;
-  }
-
-  async getType(id: number) {
-    const listType = await db.query.listTypes.findFirst({
-      where: (user, { eq }) => eq(user.id, id),
-    });
-
-    return listType;
-  }
-
-  async getUserLists(userId: number) {
+  async getLists(userId: number) {
     const listTypes = await this.getTypes();
 
     const lists = await Promise.all(
-      listTypes.map(async (type) => this.getUserList(userId, type.id, type))
+      listTypes.map(async (type) => this.getList(userId, type.id, type))
     );
 
     return lists;
   }
 
-  async getUserList(
-    userId: number,
-    listTypeId: number,
-    typeObj?: MovieListType
-  ) {
+  async getList(userId: number, listTypeId: number, typeObj?: ListType) {
     const type = typeObj || (await this.getType(listTypeId));
 
     if (!type) return null;
@@ -54,71 +40,16 @@ export class ListsService {
         and(eq(movie.userId, userId), eq(movie.listTypeId, listTypeId)),
     });
 
-    const movies = await Promise.all(
-      listMovies.map(async (listMovie) => ({
-        ...(await this.moviesService.fetchMovieDetails(listMovie.movieId)),
-        list: { listMovieId: listMovie.id, typeId: type.id },
-      }))
+    const movies: Movie[] = await Promise.all(
+      listMovies.map(async (listMovie) =>
+        this.moviesService.fetchMovie(userId, listMovie.movieId)
+      )
     );
 
     return { typeId: type.id, name: type.name, movies: movies };
   }
 
-  async getFavouritesList(userId: number) {
-    const favouriteMovies = await db.query.favouriteMovies.findMany({
-      where: (movie, { eq }) => eq(movie.userId, userId),
-    });
-
-    const listMovies = await Promise.all(
-      favouriteMovies.map(
-        async (favouriteMovie) =>
-          await db.query.listMovies.findFirst({
-            where: (listMovie, { eq, and }) =>
-              and(
-                eq(listMovie.userId, userId),
-                eq(listMovie.movieId, favouriteMovie.movieId)
-              ),
-          })
-      )
-    );
-
-    const movies = await Promise.all(
-      favouriteMovies.map(async (favouriteMovie) => {
-        const movieWithDetails = await this.moviesService.fetchMovieDetails(
-          favouriteMovie.movieId
-        );
-
-        const listMovie = listMovies.find(
-          (lm) => lm?.movieId === favouriteMovie.movieId
-        );
-
-        if (!!listMovie)
-          return {
-            ...movieWithDetails,
-            list: { listMovieId: listMovie.id, typeId: listMovie.listTypeId },
-          };
-
-        return { ...movieWithDetails };
-      })
-    );
-
-    return movies;
-  }
-
-  async getFavouriteMovie(userId: number, movieId: number) {
-    const favourite = await db.query.favouriteMovies.findFirst({
-      where: (movie, { and, eq }) =>
-        and(eq(movie.userId, userId), eq(movie.movieId, movieId)),
-    });
-
-    return favourite;
-  }
-
-  async addNewMovie(
-    userId: number,
-    newListMovie: Omit<NewListMovie, "userId">
-  ) {
-    // TODO: Check if added, because if it's already added we can have an error
+  async addToList(userId: number, newListMovie: Omit<NewListMovie, "userId">) {
     const movie = await db
       .insert(listMovies)
       .values({ ...newListMovie, userId: userId })
@@ -127,48 +58,48 @@ export class ListsService {
     return movie[0];
   }
 
-  async editListMovie(
+  async editMovie(
     userId: number,
     newListMovie: UpdateListMovie & { id: number }
   ) {
-    const movie = await db
+    const updatedMovies = await db
       .update(listMovies)
       .set({ ...newListMovie, userId: userId })
       .where(eq(listMovies.id, newListMovie.id))
       .returning();
 
-    return movie[0];
+    return updatedMovies?.[0];
   }
 
-  async deleteListMovie(userId: number, listMovieId: number) {
-    const deletedListMovies = await db
+  async deleteMovie(userId: number, listMovieId: number) {
+    const deletedMovies = await db
       .delete(listMovies)
       .where(and(eq(listMovies.userId, userId), eq(listMovies.id, listMovieId)))
       .returning();
 
-    return deletedListMovies?.[0];
+    return deletedMovies?.[0];
   }
 
-  async addToFavourites(userId: number, movieId: number) {
-    const movie = await db
-      .insert(favouriteMovies)
-      .values({ movieId, userId: userId })
-      .returning();
+  async getTypes() {
+    const types = await db.select().from(listTypes);
 
-    return movie[0];
+    return types;
   }
 
-  async deleteFromFavourites(userId: number, movieId: number) {
-    const deletedListMovies = await db
-      .delete(favouriteMovies)
-      .where(
-        and(
-          eq(favouriteMovies.userId, userId),
-          eq(favouriteMovies.movieId, movieId)
-        )
-      )
-      .returning();
+  async getType(listTypeId: number) {
+    const listType = await db.query.listTypes.findFirst({
+      where: (listType, { eq }) => eq(listType.id, listTypeId),
+    });
 
-    return deletedListMovies?.[0];
+    return listType;
+  }
+
+  async getListMovieByMovieId(userId: number, movieId: number) {
+    const list = await db.query.listMovies.findFirst({
+      where: (listMovie, { eq, and }) =>
+        and(eq(listMovie.userId, userId), eq(listMovie.movieId, movieId)),
+    });
+
+    return list;
   }
 }

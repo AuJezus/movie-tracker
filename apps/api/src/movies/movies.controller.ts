@@ -2,90 +2,88 @@ import { Controller, Req } from "@nestjs/common";
 import { MoviesService } from "./movies.service";
 import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
 import { contract } from "api-contract";
-import { JwtService } from "@nestjs/jwt";
-import { JwtPayload } from "src/auth/strategies/jwt.strategy";
 import { Request } from "express";
+import { AuthService } from "src/auth/auth.service";
 
 @Controller()
 export class MoviesController {
   constructor(
     private readonly moviesService: MoviesService,
-    private jwtService: JwtService
+    private readonly authService: AuthService
   ) {}
+
+  @TsRestHandler(contract.movies.getMovie)
+  async getMovie(@Req() req: Request) {
+    return tsRestHandler(contract.movies.getMovie, async ({ params }) => {
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
+
+      const movie = await this.moviesService.fetchMovie(userId, params.movieId);
+
+      if (!movie)
+        return {
+          status: 404,
+          body: { message: "Could not find movie with given id" },
+        };
+
+      return { status: 200, body: movie };
+    });
+  }
+
+  @TsRestHandler(contract.movies.getMovieMedia)
+  async getMovieMedia() {
+    return tsRestHandler(contract.movies.getMovieMedia, async ({ params }) => {
+      const trailer = await this.moviesService.fetchMovieTrailer(
+        params.movieId
+      );
+      const pictures = await this.moviesService.fetchMoviePictures(
+        params.movieId
+      );
+
+      if (!trailer && !pictures.length)
+        return {
+          status: 404,
+          body: { message: "Could not find requested media" },
+        };
+
+      return { status: 200, body: { trailer, pictures } };
+    });
+  }
 
   @TsRestHandler(contract.movies.getDiscover)
   async getDiscover(@Req() req: Request) {
     return tsRestHandler(contract.movies.getDiscover, async ({ query }) => {
-      const page = query.page;
-      delete query.page;
+      const { page, ...filters } = query;
 
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
 
-      const res = await this.moviesService.fetchDiscoverMovies(
-        id,
+      const discoverResult = await this.moviesService.fetchDiscoverMovies(
+        userId,
         page ?? 1,
-        query
+        filters
       );
 
-      return { status: 200, body: res };
+      return { status: 200, body: discoverResult };
+    });
+  }
+
+  @TsRestHandler(contract.movies.getTrending)
+  async getTrendingMovies(@Req() req: Request) {
+    return tsRestHandler(contract.movies.getTrending, async () => {
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
+
+      const trendingResult =
+        await this.moviesService.fetchTrendingMovies(userId);
+
+      return { status: 200, body: trendingResult };
     });
   }
 
   @TsRestHandler(contract.movies.getGenres)
   async getGenres() {
     return tsRestHandler(contract.movies.getGenres, async ({ query }) => {
-      const res = await this.moviesService.fetchGenres(query.id);
+      const genres = await this.moviesService.fetchGenres(query.id);
 
-      return { status: 200, body: res };
-    });
-  }
-
-  @TsRestHandler(contract.movies.getTrendingMovies)
-  async getTrendingMovies(@Req() req: Request) {
-    return tsRestHandler(contract.movies.getTrendingMovies, async () => {
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
-
-      const trendingMovies = await this.moviesService.fetchTrendingMovies(id);
-
-      return { status: 200, body: trendingMovies };
-    });
-  }
-
-  @TsRestHandler(contract.movies.getMovieDetails)
-  async getMovieDetails() {
-    return tsRestHandler(
-      contract.movies.getMovieDetails,
-      async ({ params }) => {
-        const movie = await this.moviesService.fetchMovieDetails(params.id);
-
-        if (!movie)
-          return {
-            status: 404,
-            body: { message: "Could not find requested movie" },
-          };
-
-        return { status: 200, body: movie };
-      }
-    );
-  }
-
-  @TsRestHandler(contract.movies.getMovieMedia)
-  async getMovieTrailer() {
-    return tsRestHandler(contract.movies.getMovieMedia, async ({ params }) => {
-      const ytKey = await this.moviesService.fetchMovieTrailer(params.id);
-      const pictures = await this.moviesService.fetchMoviePictures(params.id);
-
-      if (!ytKey && !pictures)
-        return {
-          status: 404,
-          body: { message: "Could not find requested media" },
-        };
-
-      return { status: 200, body: { ytKey, pictures } };
+      return { status: 200, body: genres };
     });
   }
 }

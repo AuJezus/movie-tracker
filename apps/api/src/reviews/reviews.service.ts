@@ -11,17 +11,7 @@ export class ReviewsService {
       where: (review, { eq }) => eq(review.userId, userId),
     });
 
-    const reviewsWithMovieData = await Promise.all(
-      reviews.map(async (review) => {
-        const movie = await this.moviesService.fetchMovieDetails(
-          review.movieId
-        );
-
-        return { ...review, movie };
-      })
-    );
-
-    return reviewsWithMovieData;
+    return reviews;
   }
 
   async addReview(userId: number, newReview: Omit<NewReview, "userId">) {
@@ -52,12 +42,29 @@ export class ReviewsService {
     return delReview[0];
   }
 
-  async getReviewByMovieId(userId, movieId) {
+  async getReviewByMovieId(userId: number, movieId: number) {
     const review = await db.query.reviews.findFirst({
       where: (review, { eq, and }) =>
         and(eq(review.userId, userId), eq(review.movieId, movieId)),
     });
 
     return review;
+  }
+
+  async getReviewedMovies(userId: number) {
+    const reviews = await this.getReviews(userId);
+
+    const reviewedMovies = await Promise.all(
+      reviews.map(async (review) => {
+        const movie = await this.moviesService.fetchMovie(
+          userId,
+          review.movieId
+        );
+
+        return { review, ...movie };
+      })
+    );
+
+    return reviewedMovies;
   }
 }

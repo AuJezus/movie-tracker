@@ -3,11 +3,12 @@ import { ConfigService } from "@nestjs/config";
 import {
   DiscoverFilters,
   DiscoverFilter,
-  GenreResponse,
-  MovieDetailsResponse,
+  MovieDetails,
+  Genre,
 } from "api-contract";
-import { db } from "database";
 import { MovieImageResponse, MovieResponse, MovieVideoResponse } from "./types";
+import { FavouritesService } from "src/favourites/favourites.service";
+import { ListsService } from "src/lists/lists.service";
 
 export const defaultFilters = {
   ratingFrom: "5",
@@ -37,7 +38,11 @@ export interface ErrorResponse {
 
 @Injectable()
 export class MoviesService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly favouritesService: FavouritesService,
+    private readonly listService: ListsService
+  ) {}
 
   async fetchMoviesApi<T>(
     path: string,
@@ -60,13 +65,57 @@ export class MoviesService {
 
     const body = await res.json();
 
-    if (!res.ok) {
-      return Promise.reject(body as ErrorResponse);
-    }
+    if (!res.ok) return null;
 
     const data = body as T;
 
     return data;
+  }
+
+  async fetchMovie(userId: number, movieId: number) {
+    const response = await this.fetchMoviesApi<MovieDetails>(
+      `/movie/${movieId}`
+    );
+
+    if (!response) return null;
+
+    const list = await this.listService.getListMovieByMovieId(userId, movieId);
+    const favourite = await this.favouritesService.getFavourite(
+      userId,
+      movieId
+    );
+
+    return { ...response, list, favourite };
+  }
+
+  async fetchMovieTrailer(movieId: number) {
+    const response = await this.fetchMoviesApi<MovieVideoResponse>(
+      `/movie/${movieId}/videos`,
+      { params: { language: "en" } }
+    );
+
+    const ytVideo = response.results.filter(
+      (video) =>
+        video.site.toLowerCase() === "youtube" &&
+        video.type.toLowerCase() === "trailer"
+    )?.[0];
+
+    if (!ytVideo) return null;
+
+    return ytVideo.key;
+  }
+
+  async fetchMoviePictures(movieId: number) {
+    const response = await this.fetchMoviesApi<MovieImageResponse>(
+      `/movie/${movieId}/images`,
+      {
+        params: { language: "en" },
+      }
+    );
+
+    if (!response.backdrops.length) return null;
+
+    return response.backdrops;
   }
 
   async fetchDiscoverMovies(
@@ -77,9 +126,6 @@ export class MoviesService {
     const params: Record<string, string | number> = { page };
 
     const preparedFilters = { ...defaultFilters, ...filters };
-
-    if (!!filters.query) {
-    }
 
     if (filters) {
       const nonEmptyFilters = Object.entries(preparedFilters).filter(
@@ -100,7 +146,7 @@ export class MoviesService {
       });
     }
 
-    const response = !!filters.query
+    const response = filters.query
       ? await this.fetchMoviesApi<MovieResponse>("/search/movie", {
           params: { query: filters.query, page },
         })
@@ -109,77 +155,10 @@ export class MoviesService {
         });
 
     const moviesWithDetails = await Promise.all(
-      response.results.map((movie) => this.fetchMovieDetails(movie.id))
+      response.results.map((movie) => this.fetchMovie(userId, movie.id))
     );
 
-    const moviesWithListData = await Promise.all(
-      moviesWithDetails.map(async (movie) => {
-        const listMovie = await db.query.listMovies.findFirst({
-          where: (listMovie, { eq, and }) =>
-            and(eq(listMovie.userId, userId), eq(listMovie.movieId, movie.id)),
-        });
-
-        if (!listMovie) return movie;
-
-        return {
-          ...movie,
-          list: { listMovieId: listMovie.id, typeId: listMovie.listTypeId },
-        };
-      })
-    );
-
-    return { ...response, results: moviesWithListData };
-  }
-
-  async fetchGenres(filterId?: number[]) {
-    const response =
-      await this.fetchMoviesApi<GenreResponse>("/genre/movie/list");
-
-    if (!filterId?.length) return response;
-
-    response.genres = response.genres.filter((genre) =>
-      filterId.includes(genre.id)
-    );
-
-    return response;
-  }
-
-  async fetchMovieDetails(id: number) {
-    const response = await this.fetchMoviesApi<MovieDetailsResponse>(
-      `/movie/${id}`
-    ).catch(() => null);
-
-    return response;
-  }
-
-  async fetchMovieTrailer(movieId) {
-    const response = await this.fetchMoviesApi<MovieVideoResponse>(
-      `/movie/${movieId}/videos`,
-      { params: { language: "en" } }
-    );
-
-    const ytVideo = response.results.filter(
-      (video) =>
-        video.site.toLowerCase() === "youtube" &&
-        video.type.toLowerCase() === "trailer"
-    )?.[0];
-
-    if (!ytVideo) return null;
-
-    return ytVideo.key;
-  }
-
-  async fetchMoviePictures(movieId) {
-    const response = await this.fetchMoviesApi<MovieImageResponse>(
-      `/movie/${movieId}/images`,
-      {
-        params: { language: "en" },
-      }
-    );
-
-    if (!response.backdrops.length) return null;
-
-    return response.backdrops;
+    return { ...response, results: moviesWithDetails };
   }
 
   async fetchTrendingMovies(userId: number) {
@@ -188,25 +167,19 @@ export class MoviesService {
     );
 
     const moviesWithDetails = await Promise.all(
-      response.results.map((movie) => this.fetchMovieDetails(movie.id))
+      response.results.map((movie) => this.fetchMovie(userId, movie.id))
     );
 
-    const moviesWithListData = await Promise.all(
-      moviesWithDetails.map(async (movie) => {
-        const listMovie = await db.query.listMovies.findFirst({
-          where: (listMovie, { eq, and }) =>
-            and(eq(listMovie.userId, userId), eq(listMovie.movieId, movie.id)),
-        });
+    return moviesWithDetails;
+  }
 
-        if (!listMovie) return movie;
-
-        return {
-          ...movie,
-          list: { listMovieId: listMovie.id, typeId: listMovie.listTypeId },
-        };
-      })
+  async fetchGenres(filterId?: number[]) {
+    const response = await this.fetchMoviesApi<{ genres: Genre[] }>(
+      "/genre/movie/list"
     );
 
-    return { ...response, results: moviesWithListData };
+    if (!filterId?.length) return response.genres;
+
+    return response.genres.filter((genre) => filterId.includes(genre.id));
   }
 }

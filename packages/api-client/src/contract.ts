@@ -5,6 +5,7 @@ import { usersContract } from "./contracts/users";
 import { moviesContract } from "./contracts/movies";
 import { listsContract } from "./contracts/lists";
 import { reviewsContract } from "./contracts/reviews";
+import { favouritesContract } from "./contracts/favourites";
 
 const c = initContract();
 
@@ -16,6 +17,7 @@ export const contract = c.router(
     movies: moviesContract,
     lists: listsContract,
     reviews: reviewsContract,
+    favourites: favouritesContract,
   },
   {
     commonResponses: {

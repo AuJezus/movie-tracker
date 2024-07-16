@@ -1,4 +1,4 @@
-import { FavouriteMovie, ListMovie, ListType } from "database";
+import { FavouriteMovie, ListMovie } from "database";
 
 export interface Genre {
   id: number;
@@ -45,7 +45,7 @@ export interface MovieDetails {
 }
 
 export type Movie = MovieDetails & {
-  list?: Omit<ListMovie, "listTypeId"> & { listType: ListType };
+  list?: ListMovie;
   favourite?: FavouriteMovie;
 };
 

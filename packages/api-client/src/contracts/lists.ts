@@ -25,14 +25,14 @@ export const listsContract = c.router(
       },
     },
 
-    getListTypes: {
+    getTypes: {
       method: "GET",
       path: "/types",
       responses: {
         200: c.type<ListType[]>(),
       },
     },
-    getListType: {
+    getType: {
       method: "GET",
       path: "/types/:listTypeId",
       pathParams: z.object({
