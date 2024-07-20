@@ -12,7 +12,7 @@ export function getFiltersFromParams(params: URLSearchParams) {
     if (isDiscoverFilter(filter)) {
       if (filter === "genre")
         paramFilters[filter] = Array.isArray(paramFilters[filter])
-          ? [...paramFilters[filter]!, value]
+          ? [...paramFilters[filter], value]
           : [value];
       else if (filter === "sortBy" || filter === "order") {
         if (filter === "sortBy") paramFilters[filter] = value as SortBy;

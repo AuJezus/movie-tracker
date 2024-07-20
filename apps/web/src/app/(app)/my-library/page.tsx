@@ -20,7 +20,11 @@ import { Hydrate, dehydrate } from "@tanstack/react-query";
 import ReviewList from "~/components/review-list";
 import MovieCard from "~/components/movie/movie-card";
 
-const listIcons = [<BiMoviePlay />, <BiMovie />, <BiTrash />];
+const listIcons = [
+  <BiMoviePlay key={1} />,
+  <BiMovie key={2} />,
+  <BiTrash key={3} />,
+];
 
 export default async function MyLibraryPage() {
   const apiClient = initApiClient(cookies());

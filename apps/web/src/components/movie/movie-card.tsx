@@ -60,13 +60,14 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: Movie }>(
       },
       onError: (err, newListMovie, context) =>
         setListMovie(context as typeof listMovie),
-      onSettled: (data, error, newListMovie, context) => {
-        queryClient.invalidateQueries(["lists", data?.body.listTypeId]);
-        queryClient.invalidateQueries([
-          "lists",
-          (context as typeof listMovie)?.listTypeId,
-        ]);
-      },
+      onSettled: (data, error, newListMovie, context) =>
+        Promise.all([
+          queryClient.invalidateQueries(["lists", data?.body.listTypeId]),
+          queryClient.invalidateQueries([
+            "lists",
+            (context as typeof listMovie)?.listTypeId,
+          ]),
+        ]),
     });
 
     const deleteFromListMutation = queryApiClient.lists.deleteMovie.useMutation(

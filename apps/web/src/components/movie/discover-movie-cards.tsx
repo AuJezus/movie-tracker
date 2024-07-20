@@ -13,7 +13,10 @@ function DiscoverMovieCards() {
     queryApiClient.movies.getDiscover.useInfiniteQuery(
       ["movies", "discover", filters],
       ({ pageParam = 1, queryKey }) => ({
-        query: { page: pageParam, ...queryKey[2]! },
+        query: {
+          page: pageParam as number,
+          ...(queryKey[2] as typeof filters),
+        },
       }),
       {
         getNextPageParam: (lastPage, _pages) =>
@@ -58,10 +61,10 @@ function DiscoverMovieCards() {
       <li
         className={cn(
           "col-span-full mt-8 text-center",
-          hasNextPage || (isLoading && "animate-pulse"),
+          !!hasNextPage || (isLoading && "animate-pulse"),
         )}
       >
-        {hasNextPage || isLoading ? "Loading..." : "You reached the end 😝"}
+        {!!hasNextPage || isLoading ? "Loading..." : "You reached the end 😝"}
       </li>
     </>
   );

@@ -63,8 +63,8 @@ function ReviewForm({
         body: { ...values, movieId: movieId },
       });
       if (addRes.status === 200) {
-        queryClient.invalidateQueries(["reviews", "movie", movieId]);
         setIsEdit(false);
+        return queryClient.invalidateQueries(["reviews", "movie", movieId]);
       }
     } else {
       const editRes = await mutateEditAsync({
@@ -72,8 +72,8 @@ function ReviewForm({
         body: { id: review.id, ...values },
       });
       if (editRes.status === 200) {
-        queryClient.invalidateQueries(["reviews", "movie", movieId]);
         setIsEdit(false);
+        return queryClient.invalidateQueries(["reviews", "movie", movieId]);
       }
     }
   }
