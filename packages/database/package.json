@@ -10,6 +10,7 @@
     "db:check": "npx drizzle-kit check",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node ./migrate.ts",
+    "db:seed": "ts-node ./seed.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "build": "tsc",
