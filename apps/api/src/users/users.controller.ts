@@ -3,24 +3,21 @@ import { UsersService } from "./users.service";
 import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
 import { Request } from "express";
 import { contract } from "api-contract";
-import { JwtService } from "@nestjs/jwt";
-import { JwtPayload } from "src/auth/strategies/jwt.strategy";
+import { AuthService } from "src/auth/auth.service";
 
 @Controller()
 export class UsersController {
   constructor(
     private readonly userService: UsersService,
-    private jwtService: JwtService
+    private readonly authService: AuthService
   ) {}
 
   @TsRestHandler(contract.users.getCurrent)
   async getCurrentUser(@Req() req: Request) {
     return tsRestHandler(contract.users.getCurrent, async () => {
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
 
-      const user = await this.userService.getUser(id);
+      const user = await this.userService.getUser(userId);
 
       return { status: 200, body: { user } };
     });
@@ -29,11 +26,9 @@ export class UsersController {
   @TsRestHandler(contract.users.getStats)
   async getStats(@Req() req: Request) {
     return tsRestHandler(contract.users.getStats, async () => {
-      const { sub: id }: JwtPayload = this.jwtService.decode(
-        req.cookies["access_token"]
-      );
+      const userId = this.authService.getUserIdFromJwt(req.cookies);
 
-      const stats = await this.userService.getStats(id);
+      const stats = await this.userService.getStats(userId);
 
       return { status: 200, body: stats };
     });
