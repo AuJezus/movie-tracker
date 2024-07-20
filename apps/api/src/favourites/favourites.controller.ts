@@ -5,7 +5,7 @@ import { contract } from "api-contract";
 import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
 import { Request } from "express";
 
-@Controller("favourites")
+@Controller()
 export class FavouritesController {
   constructor(
     private readonly favouritesService: FavouritesService,
@@ -16,12 +16,12 @@ export class FavouritesController {
   async addToFavourites(@Req() req: Request) {
     return tsRestHandler(
       contract.favourites.addToFavourites,
-      async ({ params }) => {
+      async ({ body }) => {
         const userId = this.authService.getUserIdFromJwt(req.cookies);
 
         const result = await this.favouritesService.addToFavourites(
           userId,
-          params.movieId
+          body.movieId
         );
 
         return { status: 200, body: result };

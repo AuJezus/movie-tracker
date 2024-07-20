@@ -35,10 +35,7 @@ export default async function MyLibraryPage() {
   const listsRes = await apiClient.lists.getLists();
   if (listsRes.status !== 200) throw new Error("Could not get movie lists");
 
-  const reviewsRes = await apiClient.reviews.getReviews();
-  if (reviewsRes.status !== 200) throw new Error("Could not get reviews");
-
-  const favouritesRes = await apiClient.lists.getFavourites();
+  const favouritesRes = await apiClient.favourites.getFavouriteMovies();
   if (favouritesRes.status !== 200) throw new Error("Could not get favourites");
 
   const { user } = userRes.body;
@@ -52,12 +49,6 @@ export default async function MyLibraryPage() {
       ["lists", list.typeId],
       { ...listsRes, body: list },
     ),
-  );
-
-  queryApiClient.reviews.getReviews.setQueryData(
-    queryClient,
-    ["reviews"],
-    reviewsRes,
   );
 
   return (
@@ -100,8 +91,8 @@ export default async function MyLibraryPage() {
           <p className="mb-2">Last Movie:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
             <BiMovie className="text-primary" />
-            {stats.lastMovie
-              ? `"${stats.lastMovie.title}"`
+            {stats.lastMovieTitle
+              ? `"${stats.lastMovieTitle}"`
               : "You haven't completed any movie"}
           </p>
         </div>
@@ -155,7 +146,7 @@ export default async function MyLibraryPage() {
             </MovieList>
           </TabsContent>
 
-          <TabsContent value="review" asChild>
+          <TabsContent value="review">
             <ReviewList />
           </TabsContent>
         </Hydrate>

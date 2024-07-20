@@ -12,6 +12,30 @@ export class ListsController {
     private readonly authService: AuthService
   ) {}
 
+  @TsRestHandler(contract.lists.getTypes)
+  async getTypes() {
+    return tsRestHandler(contract.lists.getTypes, async () => {
+      const types = await this.listsService.getTypes();
+
+      return { status: 200, body: types };
+    });
+  }
+
+  @TsRestHandler(contract.lists.getType)
+  async getType() {
+    return tsRestHandler(contract.lists.getType, async ({ params }) => {
+      const type = await this.listsService.getType(params.listTypeId);
+
+      if (!type)
+        return {
+          status: 404,
+          body: { message: "Could not find type with given typeId" },
+        };
+
+      return { status: 200, body: type };
+    });
+  }
+
   @TsRestHandler(contract.lists.getLists)
   async getLists(@Req() req: Request) {
     return tsRestHandler(contract.lists.getLists, async () => {
@@ -88,30 +112,6 @@ export class ListsController {
         };
 
       return { status: 200, body: deletedListMovie };
-    });
-  }
-
-  @TsRestHandler(contract.lists.getTypes)
-  async getTypes() {
-    return tsRestHandler(contract.lists.getTypes, async () => {
-      const types = await this.listsService.getTypes();
-
-      return { status: 200, body: types };
-    });
-  }
-
-  @TsRestHandler(contract.lists.getType)
-  async getType() {
-    return tsRestHandler(contract.lists.getType, async ({ params }) => {
-      const type = await this.listsService.getType(params.listTypeId);
-
-      if (!type)
-        return {
-          status: 404,
-          body: { message: "Could not find type with given typeId" },
-        };
-
-      return { status: 200, body: type };
     });
   }
 }

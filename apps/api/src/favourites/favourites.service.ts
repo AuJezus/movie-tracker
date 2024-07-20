@@ -1,10 +1,13 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
 import { and, db, eq, favouriteMovies } from "database";
 import { MoviesService } from "src/movies/movies.service";
 
 @Injectable()
 export class FavouritesService {
-  constructor(private readonly moviesService: MoviesService) {}
+  constructor(
+    @Inject(forwardRef(() => MoviesService))
+    private moviesService: MoviesService
+  ) {}
 
   async getFavourite(userId: number, movieId: number) {
     const favourite = await db.query.favouriteMovies.findFirst({
@@ -43,33 +46,11 @@ export class FavouritesService {
       where: (movie, { eq }) => eq(movie.userId, userId),
     });
 
-    const listMovies = await Promise.all(
+    const movies = await Promise.all(
       favouriteMovies.map(
         async (favouriteMovie) =>
-          await db.query.listMovies.findFirst({
-            where: (listMovie, { eq, and }) =>
-              and(
-                eq(listMovie.userId, userId),
-                eq(listMovie.movieId, favouriteMovie.movieId)
-              ),
-          })
+          await this.moviesService.fetchMovie(userId, favouriteMovie.movieId)
       )
-    );
-
-    const movies = await Promise.all(
-      favouriteMovies.map(async (favouriteMovie) => {
-        const movieWithDetails = await this.moviesService.fetchMovieDetails(
-          favouriteMovie.movieId
-        );
-
-        const listMovie = listMovies.find(
-          (lm) => lm?.movieId === favouriteMovie.movieId
-        );
-
-        if (listMovie) movieWithDetails.list = listMovie;
-
-        return { ...movieWithDetails, favourite: { ...favouriteMovie } };
-      })
     );
 
     return movies;

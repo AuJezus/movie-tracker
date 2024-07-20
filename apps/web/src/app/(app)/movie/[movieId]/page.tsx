@@ -19,27 +19,27 @@ import PageContainer from "~/components/ui/page-container";
 import { initApiClient } from "~/lib/api";
 import getQueryClient from "~/lib/get-query-client";
 
-async function MovieDetailsPage({ params }: { params: { id: string } }) {
+async function MovieDetailsPage({ params }: { params: { movieId: string } }) {
   const apiClient = initApiClient(cookies());
   const queryClient = getQueryClient();
 
-  const movieRes = await apiClient.movies.getMovieDetails({
-    params: { id: params.id },
+  const movieRes = await apiClient.movies.getMovie({
+    params: { movieId: params.movieId },
   });
   if (movieRes.status === 404) notFound();
   if (movieRes.status !== 200) throw new Error("Could not fetch movie details");
   const movie = movieRes.body;
 
   const mediaRes = await apiClient.movies.getMovieMedia({
-    params: { id: movie.id.toString() },
+    params: { movieId: movie.id.toString() },
   });
 
   const reviewRes = await apiClient.reviews.getReviewByMovieId({
-    params: { id: movie.id.toString() },
+    params: { movieId: movie.id.toString() },
   });
-  queryClient.setQueryData(["reviews", "movies", movie.id], reviewRes);
+  queryClient.setQueryData(["reviews", "movie", movie.id], reviewRes);
 
-  const trendingMovieRes = await apiClient.movies.getTrendingMovies();
+  const trendingMovieRes = await apiClient.movies.getTrending();
 
   return (
     <PageContainer>
@@ -83,7 +83,7 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
           {mediaRes.status === 200 && (
             <CarouselItem className="xl:basis-4/6">
               <iframe
-                src={`https://www.youtube.com/embed/${mediaRes.body.ytKey}`}
+                src={`https://www.youtube.com/embed/${mediaRes.body.trailer}`}
                 title={`"${movie.title} trailer"`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerPolicy="strict-origin-when-cross-origin"
@@ -173,8 +173,8 @@ async function MovieDetailsPage({ params }: { params: { id: string } }) {
         <>
           <Heading level="h2">Trending Movies</Heading>
           <MovieList>
-            {trendingMovieRes.body.results.map((movie) => (
-              <MovieCard movie={movie} />
+            {trendingMovieRes.body.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
             ))}
           </MovieList>
         </>

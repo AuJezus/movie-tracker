@@ -6,7 +6,7 @@ import MovieCard from "./movie-card";
 function ListMovieCards({ typeId }: { typeId: number }) {
   const { data, isLoading } = queryApiClient.lists.getList.useQuery(
     ["lists", typeId],
-    { params: { id: typeId.toString() } },
+    { params: { listTypeId: typeId.toString() } },
   );
 
   return (

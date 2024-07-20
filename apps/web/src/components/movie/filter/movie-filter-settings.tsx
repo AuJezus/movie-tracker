@@ -28,8 +28,7 @@ function MovieFilterSettings() {
   const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
     "genres",
   ]);
-
-  const genres = genreRes?.body.genres;
+  const genres = genreRes?.body;
 
   return (
     <div className="mb-4 flex flex-wrap gap-2">

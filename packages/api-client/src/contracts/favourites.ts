@@ -16,10 +16,7 @@ export const favouritesContract = c.router(
     },
     addToFavourites: {
       method: "POST",
-      path: "/:movieId",
-      pathParams: z.object({
-        movieId: z.string().transform(Number),
-      }),
+      path: "/",
       body: c.type<Omit<NewFavouriteMovie, "userId">>(),
       responses: {
         200: c.type<FavouriteMovie>(),

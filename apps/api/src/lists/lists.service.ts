@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
 import { Movie } from "api-contract";
 import {
   ListType,
@@ -10,14 +10,13 @@ import {
   listMovies,
   listTypes,
 } from "database";
-import { FavouritesService } from "src/favourites/favourites.service";
 import { MoviesService } from "src/movies/movies.service";
 
 @Injectable()
 export class ListsService {
   constructor(
-    private moviesService: MoviesService,
-    private favouriteService: FavouritesService
+    @Inject(forwardRef(() => MoviesService))
+    private moviesService: MoviesService
   ) {}
 
   async getLists(userId: number) {

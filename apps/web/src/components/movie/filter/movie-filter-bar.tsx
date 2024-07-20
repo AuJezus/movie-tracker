@@ -33,12 +33,12 @@ export const defaultFilters = {
 };
 
 function MovieFilterBar() {
-  const { setFilters, filters } = useFilterSearchParams();
+  const { setFilters } = useFilterSearchParams();
   const [query, setQuery] = useState("");
 
-  const { data: genreRes } = queryApiClient.movies.getGenres.useQuery([
-    "genres",
-  ]);
+  const { data: genreRes, isLoading: isLoadingGenres } =
+    queryApiClient.movies.getGenres.useQuery(["genres"]);
+  const genres = genreRes?.body;
 
   const isSmall = useMediaQuery("(max-width: 400px)");
 
@@ -98,15 +98,22 @@ function MovieFilterBar() {
                 Genre
               </SelectTrigger>
               <SelectContent side="right">
-                {genreRes?.body.genres.map((genre) => (
-                  <SelectItem
-                    key={genre.id}
-                    value={String(genre.id)}
-                    className="capitalize"
-                  >
-                    {genre.name}
-                  </SelectItem>
-                ))}
+                {!isLoadingGenres &&
+                  genreRes?.status !== 200 &&
+                  "Could not load genres"}
+
+                {!isLoadingGenres &&
+                  genres?.map((genre) => (
+                    <SelectItem
+                      key={genre.id}
+                      value={String(genre.id)}
+                      className="capitalize"
+                    >
+                      {genre.name}
+                    </SelectItem>
+                  ))}
+
+                {isLoadingGenres && "Loading..."}
               </SelectContent>
             </Select>
           </MenubarItem>

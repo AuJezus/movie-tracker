@@ -12,10 +12,8 @@ import {
 import { MdMovieEdit } from "react-icons/md";
 import {
   BiCalendarStar,
-  BiFolderMinus,
   BiHeart,
   BiSolidHeart,
-  BiSolidStar,
   BiStar,
   BiTime,
 } from "react-icons/bi";
@@ -23,13 +21,13 @@ import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "../ui/button";
 import { queryApiClient } from "~/lib/api";
-import { DiscoverMovie } from "api-contract";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { Movie } from "api-contract";
+import { ListMovie } from "../../../../../packages/database/dist/types";
 
-const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
+const MovieCard = forwardRef<HTMLLIElement, { movie: Movie }>(
   ({ movie }, ref) => {
-    const [list, setList] = useState(movie?.list);
     const queryClient = useQueryClient();
 
     const { data: typesRes } = queryApiClient.lists.getTypes.useQuery([
@@ -37,77 +35,102 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
       "types",
     ]);
 
-    const { data: favouriteRes } = queryApiClient.lists.getFavourite.useQuery(
-      ["favourites", movie.id],
-      { params: { movieId: movie.id.toString() } },
+    const [listMovie, setListMovie] = useState<Partial<ListMovie> | undefined>(
+      movie.list,
+    );
+    const [isFavourite, setIsFavourite] = useState(!!movie.favourite?.id);
+
+    const addToListMutation = queryApiClient.lists.addToList.useMutation({
+      onMutate: (newListMovie) => {
+        const previousListMovie = listMovie;
+        setListMovie(newListMovie.body);
+        return { previousListMovie };
+      },
+      onError: (err, newListMovie, context) =>
+        setListMovie(context as typeof listMovie),
+      onSettled: (data) =>
+        queryClient.invalidateQueries(["lists", data?.body.listTypeId]),
+    });
+
+    const editListMutation = queryApiClient.lists.editMovie.useMutation({
+      onMutate: (newListMovie) => {
+        const previousListMovie = listMovie;
+        setListMovie(newListMovie.body);
+        return previousListMovie;
+      },
+      onError: (err, newListMovie, context) =>
+        setListMovie(context as typeof listMovie),
+      onSettled: (data, error, newListMovie, context) => {
+        queryClient.invalidateQueries(["lists", data?.body.listTypeId]);
+        queryClient.invalidateQueries([
+          "lists",
+          (context as typeof listMovie)?.listTypeId,
+        ]);
+      },
+    });
+
+    const deleteFromListMutation = queryApiClient.lists.deleteMovie.useMutation(
+      {
+        onMutate: (newListMovie) => {
+          const previousListMovie = listMovie;
+          setListMovie(newListMovie.body);
+          return { previousListMovie };
+        },
+        onError: (err, newListMovie, context) =>
+          setListMovie(context as typeof listMovie),
+        onSettled: (data) =>
+          queryClient.invalidateQueries(["lists", data?.body.listTypeId]),
+      },
     );
 
-    const addMutation = queryApiClient.lists.addToList.useMutation();
-    const editMutation = queryApiClient.lists.editListMovie.useMutation();
-    const deleteMutation = queryApiClient.lists.deleteListMovie.useMutation();
+    const onSelect = useCallback(
+      (value: string) =>
+        !listMovie
+          ? addToListMutation.mutate({
+              body: { movieId: movie.id, listTypeId: Number(value) },
+            })
+          : value === "delete"
+            ? deleteFromListMutation.mutate({
+                params: { listMovieId: listMovie.id!.toString() },
+              })
+            : editListMutation.mutate({
+                body: {
+                  id: listMovie.id!,
+                  listTypeId: Number(value),
+                },
+                params: { listMovieId: listMovie.id!.toString() },
+              }),
+      [listMovie],
+    );
 
-    const addFavouriteMutation =
-      queryApiClient.lists.addToFavourites.useMutation();
-    const deleteFavouriteMutation =
-      queryApiClient.lists.deleteFromFavourites.useMutation();
+    const favouriteMutation =
+      queryApiClient.favourites.addToFavourites.useMutation({
+        onMutate: () => setIsFavourite(true),
+        onError: () => setIsFavourite(false),
+        onSettled: () => queryClient.invalidateQueries(["favourites"]),
+      });
+
+    const unFavouriteMutation =
+      queryApiClient.favourites.deleteFromFavourites.useMutation({
+        onMutate: () => setIsFavourite(false),
+        onError: () => setIsFavourite(true),
+        onSettled: () => queryClient.invalidateQueries(["favourites"]),
+      });
 
     const onFavourite = useCallback(
       (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!favouriteRes?.body?.movieId)
-          addFavouriteMutation.mutate({
-            params: { movieId: movie.id.toString() },
-            body: { movieId: movie.id },
-          });
-        else {
-          deleteFavouriteMutation.mutate({
-            params: { movieId: movie.id.toString() },
-            body: { movieId: movie.id },
-          });
-        }
-
-        queryClient.invalidateQueries(["favourites", movie.id]);
+        isFavourite
+          ? unFavouriteMutation.mutate({
+              params: { movieId: movie.id.toString() },
+            })
+          : favouriteMutation.mutate({
+              body: { movieId: movie.id },
+            });
       },
-      [favouriteRes],
-    );
-
-    const onSelect = useCallback(
-      async (value: string) => {
-        if (!list) {
-          const { status, body } = await addMutation.mutateAsync({
-            body: { movieId: movie.id, listTypeId: Number(value) },
-          });
-
-          if (status === 200) {
-            setList({ listMovieId: body.id, typeId: body.listTypeId });
-            queryClient.invalidateQueries(["lists", body.listTypeId]);
-          }
-        } else if (value === "delete") {
-          const { status, body } = await deleteMutation.mutateAsync({
-            params: { id: list.listMovieId.toString() },
-          });
-
-          if (status === 200) {
-            setList(undefined);
-            queryClient.invalidateQueries(["lists", body.listTypeId]);
-          }
-        } else {
-          const { status, body } = await editMutation.mutateAsync({
-            body: { listTypeId: Number(value) },
-            params: { id: list.listMovieId.toString() },
-          });
-
-          if (status === 200) {
-            queryClient.invalidateQueries(["lists", body.listTypeId]);
-            queryClient.invalidateQueries(["lists", list.typeId]);
-
-            setList({ listMovieId: body.id, typeId: body.listTypeId });
-          }
-        }
-      },
-      [list],
+      [isFavourite],
     );
 
     return (
@@ -140,11 +163,11 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
                 onClick={onFavourite}
                 className="mr-2 rounded-full bg-primary p-2 text-xl"
               >
-                {!favouriteRes?.body?.movieId && (
+                {!isFavourite && (
                   <BiHeart className="text-primary-foreground" />
                 )}
 
-                {!!favouriteRes?.body?.movieId && (
+                {isFavourite && (
                   <BiSolidHeart className="text-primary-foreground" />
                 )}
               </button>
@@ -155,7 +178,10 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
               {`${Math.floor(movie.runtime / 60)}hr ${movie.runtime % 60}min`}
             </div>
 
-            <Select onValueChange={onSelect} value={list?.typeId.toString()}>
+            <Select
+              onValueChange={onSelect}
+              value={listMovie?.listTypeId?.toString()}
+            >
               <SelectTrigger
                 className={cn(
                   buttonVariants({ size: "sm" }),
@@ -176,7 +202,7 @@ const MovieCard = forwardRef<HTMLLIElement, { movie: DiscoverMovie }>(
                   </SelectItem>
                 ))}
 
-                {!!list && (
+                {!!listMovie && (
                   <SelectItem value="delete" className="text-destructive">
                     Remove From List
                   </SelectItem>

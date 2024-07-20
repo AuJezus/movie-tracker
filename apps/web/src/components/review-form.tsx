@@ -46,8 +46,8 @@ function ReviewForm({
 
   const { data: reviewsRes } =
     queryApiClient.reviews.getReviewByMovieId.useQuery(
-      ["reviews", "movies", movieId],
-      { params: { id: movieId.toString() } },
+      ["reviews", "movie", movieId],
+      { params: { movieId: movieId.toString() } },
     );
   const review = reviewsRes?.status === 200 ? reviewsRes.body : undefined;
 
@@ -63,16 +63,16 @@ function ReviewForm({
         body: { ...values, movieId: movieId },
       });
       if (addRes.status === 200) {
-        queryClient.invalidateQueries(["reviews", "movies", movieId]);
+        queryClient.invalidateQueries(["reviews", "movie", movieId]);
         setIsEdit(false);
       }
     } else {
       const editRes = await mutateEditAsync({
-        params: { id: review.id.toString() },
-        body: values,
+        params: { reviewId: review.id.toString() },
+        body: { id: review.id, ...values },
       });
       if (editRes.status === 200) {
-        queryClient.invalidateQueries(["reviews", "movies", movieId]);
+        queryClient.invalidateQueries(["reviews", "movie", movieId]);
         setIsEdit(false);
       }
     }
