@@ -27,7 +27,7 @@ export default function HomePage() {
       </div>
 
       <Image
-        className="max-w-fit dark:brightness-75"
+        className="w-full max-w-sm flex-shrink dark:brightness-75"
         src={mjPopcornGif}
         alt="Michael Jackson eating popcorn"
         unoptimized

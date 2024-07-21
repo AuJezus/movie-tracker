@@ -148,7 +148,11 @@ async function MovieDetailsPage({ params }: { params: { movieId: string } }) {
           </MovieStat>
 
           <MovieStat name="Homepage">
-            <a href={movie.homepage} target="_blank">
+            <a
+              className="block break-all"
+              href={movie.homepage}
+              target="_blank"
+            >
               {movie.homepage}
             </a>
           </MovieStat>
@@ -192,7 +196,7 @@ const MovieStat = ({
 }) => (
   <div className="mb-2 flex items-center border-b-2 pb-2 last:mb-0 last:border-none">
     <p className="w-32 flex-shrink-0 text-lg font-medium">{name}</p>
-    <div className="flex flex-wrap gap-4">{children}</div>
+    <div className="flex flex-wrap gap-4 break-words">{children}</div>
   </div>
 );
 
