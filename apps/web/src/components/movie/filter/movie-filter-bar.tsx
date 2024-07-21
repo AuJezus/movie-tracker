@@ -20,7 +20,7 @@ import { LucideChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import useFilterSearchParams from "~/lib/hooks/filter/use-filter-search-params";
 import { queryApiClient } from "~/lib/api";
-import { DiscoverFilter, SortBy } from "api-contract";
+import type { DiscoverFilter, SortBy } from "api-contract";
 import { useMediaQuery } from "~/lib/hooks/use-media-query";
 
 export const defaultFilters = {
@@ -78,7 +78,7 @@ function MovieFilterBar() {
       500,
     );
     return () => clearTimeout(timeoutId);
-  }, [query]);
+  }, [setFilters, query]);
 
   return (
     <Menubar className="mb-2 flex h-fit w-fit flex-wrap border-2">

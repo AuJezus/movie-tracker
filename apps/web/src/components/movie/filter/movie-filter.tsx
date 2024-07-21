@@ -1,4 +1,4 @@
-import { Hydrate, QueryClient, dehydrate } from "@tanstack/react-query";
+import { Hydrate, dehydrate } from "@tanstack/react-query";
 import MovieFilterBar from "./movie-filter-bar";
 import MovieFilterSettings from "./movie-filter-settings";
 import { queryApiClient } from "~/lib/api";
