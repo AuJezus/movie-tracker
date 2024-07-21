@@ -8,6 +8,12 @@ import MovieList from "~/components/movie/movie-list";
 import MovieFilter from "~/components/movie/filter/movie-filter";
 import { cookies } from "next/headers";
 import { getFiltersFromParams } from "~/lib/hooks/filter/utils";
+import { type Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Discover new movies",
+  description: "Discover new movies or find what you are looking for.",
+};
 
 export default async function DiscoverPage({
   searchParams,

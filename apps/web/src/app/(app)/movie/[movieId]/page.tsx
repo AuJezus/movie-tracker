@@ -1,5 +1,6 @@
 import { Hydrate, dehydrate } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { type Metadata } from "next";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -18,6 +19,11 @@ import Heading from "~/components/ui/heading";
 import PageContainer from "~/components/ui/page-container";
 import { initApiClient } from "~/lib/api";
 import getQueryClient from "~/lib/get-query-client";
+
+export const metadata: Metadata = {
+  title: "Movie details",
+  description: "View movie details, write a review.",
+};
 
 async function MovieDetailsPage({ params }: { params: { movieId: string } }) {
   const apiClient = initApiClient(cookies());

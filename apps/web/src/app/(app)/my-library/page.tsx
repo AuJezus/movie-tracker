@@ -19,6 +19,13 @@ import ListMovieCards from "~/components/movie/list-movie-cards";
 import { Hydrate, dehydrate } from "@tanstack/react-query";
 import ReviewList from "~/components/review-list";
 import MovieCard from "~/components/movie/movie-card";
+import { type Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Your movie library and lists",
+  description:
+    "View all your movie data, different lists, favourite movies and reviews.",
+};
 
 const listIcons = [
   <BiMoviePlay key={1} />,
