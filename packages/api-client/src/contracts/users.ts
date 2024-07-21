@@ -1,5 +1,6 @@
 import { initContract } from "@ts-rest/core";
 import { User } from "database";
+import { Movie } from "../types";
 
 const c = initContract();
 
@@ -20,7 +21,7 @@ export const usersContract = c.router(
         200: c.type<{
           watchTime: number;
           moviesWatched: number;
-          lastMovieTitle?: string;
+          lastMovie?: Movie;
         }>(),
       },
     },

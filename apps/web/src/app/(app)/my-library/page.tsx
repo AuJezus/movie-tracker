@@ -102,8 +102,8 @@ export default async function MyLibraryPage() {
           <p className="mb-2">Last Movie:</p>
           <p className="ml-8 flex items-center gap-2 text-xl font-semibold">
             <BiMovie className="text-primary" />
-            {stats.lastMovieTitle
-              ? `"${stats.lastMovieTitle}"`
+            {stats.lastMovie?.title
+              ? `"${stats.lastMovie.title}"`
               : "You haven't completed any movie"}
           </p>
         </div>

@@ -32,7 +32,6 @@ export class UsersService {
           await this.moviesService.fetchMovie(userId, listMovie.movieId)
       )
     );
-
     const watchTime = watchedMovies.reduce(
       (acc, movie) => acc + movie.runtime,
       0
