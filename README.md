@@ -13,24 +13,25 @@ Discover all kinds of movies or add your own, then sort them into lists and give
 - Responsive design
 - Other little stuff I forgot about
 
-## How to run this for yourself
+## How to Run This for Yourself
 
 ### Setup
 
-1. Project is a monorepo managed by turborepo. You will need to create an account on **vercel** and get a **postgres** db up and running, you can follow [these](https://vercel.com/docs/storage/vercel-postgres/quickstart#create-a-postgres-database) easy steps. Also you will need to get google auth setup, follow [this](https://support.google.com/cloud/answer/6158849?hl=en). Finally follow [this](https://developer.themoviedb.org/docs/getting-started) and take note of the **api key**, not the bearer token.
-2. When you done all of that next clone the project on your machine and run `npm i` in the root of the project.
-3. Next we need to create `.env` files in `/apps/api` and `/packages/database`, there is a template called `.env.example` which you need to fill with the corresponding values and then you can remove the `.example`. You will need to generate a **JWT_SECRET** yourself, you can do this by typing in the console: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-4. Finally in the console type `npm run db:push`, then `npm run db:seed` to initialize the database.
+1. The project is a monorepo managed by Turborepo. You will need to create an account on **Vercel** and set up a **Postgres** database. Follow these [easy steps](https://vercel.com/docs/storage/vercel-postgres/quickstart#create-a-postgres-database). Additionally, you will need to set up Google authentication by following [this guide](https://support.google.com/cloud/answer/6158849?hl=en). Lastly, follow [these instructions](https://developer.themoviedb.org/docs/getting-started) and take note of the **API key**, not the bearer token.
+2. After completing the above steps, clone the project to your machine and run `npm install` in the root directory.
+3. Create `.env` files in `/apps/api` and `/packages/database`. Use the `.env.example` template provided, fill in the corresponding values, and then remove the `.example` extension. Generate a **JWT_SECRET** by running the following command in the console: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+4. Finally, initialize the database by running `npm run db:push`, followed by `npm run db:seed` in the console.
 
-### Running in dev mode
+### Running in Development Mode
 
-Move to the root of project and type command: `npm run dev`.
+Navigate to the root of the project and run the command: `npm run dev`.
 
-### Building and running the project.
+### Building and Running the Project
 
-Move to the root of the project.
+Navigate to the root of the project.
 
-Build by typing in the console `npm run build` and run by typing `npm run start`.
+Build the project by running `npm run build` in the console, and start the project by running `npm run start`.
 
 ### Website and API
-Website uses port 3000 and API uses port 3001. You can access the website on you local machine by going to localhost:3000 on your browser and make requests to the api on localhost:3001.
+
+The website uses port 3000 and the API uses port 3001. You can access the website on your local machine by going to `localhost:3000` in your browser and make requests to the API at `localhost:3001`.
